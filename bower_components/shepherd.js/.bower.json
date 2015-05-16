@@ -1,0 +1,38 @@
+{
+  "name": "shepherd",
+  "main": "shepherd.js",
+  "version": "0.7.1",
+  "homepage": "https://github.com/HubSpot/shepherd",
+  "authors": [
+    "Zack Bloom <zackbloom@gmail.com>",
+    "Adam Schwartz <adam.flynn.schwartz@gmail.com>"
+  ],
+  "description": "Guide your users through a tour of your app.",
+  "keywords": [
+    "guider",
+    "tour",
+    "javascript",
+    "css"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "tether": "~0.6.5"
+  },
+  "_release": "0.7.1",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.7.1",
+    "commit": "22df11e4a50df2ee9dfb1914ea8b707aadcd895b"
+  },
+  "_source": "git://github.com/HubSpot/shepherd.git",
+  "_target": "~0.7.1",
+  "_originalSource": "shepherd.js",
+  "_direct": true
+}

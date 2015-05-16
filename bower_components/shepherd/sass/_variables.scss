@@ -1,0 +1,97 @@
+// descriptive variables, add as needed:
+
+// greyscale
+$black          : rgb(0,0,0);
+$darkgrey       : lighten($black, 25%);
+$grey           : lighten($black, 50%);
+$lightgrey      : lighten($black, 75%);
+$lightergrey    : lighten($black, 90%);
+$white          : rgb(255,255,255);
+
+// functional variables:
+$primary1:  rgb(23, 100, 154);  //darkblue
+$primary2:  rgb(64, 179, 223);  //lightblue
+$primary3:  rgb(168, 203, 23);  //green
+$primary4:  rgb(238, 238, 238); //grey
+$primary5:  $white; //beige
+
+$success-color: green;
+$alert-color:   red;
+
+// Grid
+$grid-max-size: 70em;
+$grid-orientation: 0 auto; // centered: 0 auto;
+
+// Flags
+$is-rem: false;
+
+// Layout Defaults
+$text-color:    $black;
+$head-color:    $primary1;
+$link-color:    $primary2;
+$bg-color:      $primary5;
+$border-color:  $primary4;
+$code-bg-color: $primary4;
+
+$btn-text:      $primary5;
+$btn-primary:   $primary2;
+$btn-second:    lighten($btn-primary, 10%);
+$btn-success:   $success-color;
+$btn-alert:     $alert-color;
+
+$highlight-bg:  $primary3;
+
+
+// Module & Object Defaults
+// Nav Module
+$nav-bg:        #eee;
+// Pagination
+$pag-color:     $primary4;
+$pag-bg:        $primary1;
+$pag-bg-active: $primary3;
+
+
+// Typography
+$font-size:         62.5%;
+$font-size-body:    1.4;
+$line-height:       $font-size-body*1.5;
+$font-main:         "Droid Serif", Helvetica, Arial, sans-serif;
+$font-heading:      "Droid Sans", Georgia, serif;
+$font-button:       inherit;
+$font-mono:         monospace, sans-serif;
+$font-size-h1:      1.8;
+$font-size-h2:      1.6;
+$font-size-h3:      1.5;
+$font-size-h4:      1.4;
+$font-size-h5:      1.3;
+$font-size-h6:      1.2;
+$font-size-small:   0.9;
+
+// Links
+$link-color          : rgb(1,53,104);
+$link-color-hover    : darken($link-color, 10);
+$link-color-visited  : darken($link-color-hover, 10);
+$link-color-focus    : darken($link-color-visited, 10);
+$link-weight         : bold;
+
+// Defaults
+$border-radius: 5;
+$base-margin:   20;
+
+// Media Queries
+$smart-portrait     : 32em;
+$smart-landscape    : 48em;
+$tablet             : 60em;
+$large              : $tablet+1;
+
+// Marked Text
+$mark-bg            : $primary2;
+$mark-color         : white;
+
+// Support IE?
+// used in some compass mixins
+// eg: to avoid those terrible progid filter
+$support-ie6:   false;
+$support-ie7:   false;
+$support-ie8:   false;
+

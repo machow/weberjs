@@ -1,0 +1,23 @@
+// Placeholder Helper Collection
+
+// Offscreen text
+// http://css-tricks.com/redesigning-with-sass/
+%linkTextOffscreen{
+    text-indent: -9999px;
+    overflow: hidden;
+    text-decoration: none;
+    display: block;
+    font-size: 0;
+    text-align: start;
+}
+
+// Highlighted Elements
+%is-highlighted{ background: $highlight-bg; }
+
+// Positioning
+%is-centered { text-align: center; }
+%is-left{ float: left; }
+%is-right{ float: right; }
+
+// States
+%is-round{ border-radius: $border-radius +px; }

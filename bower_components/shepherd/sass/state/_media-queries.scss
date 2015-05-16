@@ -1,0 +1,29 @@
+/* Media Queries for various screen sizes */
+// Uncomment as needed
+
+
+// $STATES
+// General
+
+// Media Queries
+@media screen and (min-width: $large) {
+    body{ font-size: 140%; }
+}
+@media screen and (max-width: $tablet) {
+    body{ font-size: 130%; }
+}
+@media screen and (max-width: $smart-landscape) {
+    body{ font-size: 115%; }
+}
+@media screen and (max-width: $smart-portrait) {
+    body{ font-size: 100%; }
+}
+
+
+
+// iPhone 4 / Retina Images
+@media
+only screen and (-webkit-min-device-pixel-ratio : 1.5),
+only screen and (min-device-pixel-ratio : 1.5) {
+    // Custom Styles here:
+}
