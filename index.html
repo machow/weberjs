@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<!-- Load the Paper.js library -->
+<link rel="stylesheet" href="bower_components/shepherd.js/css/shepherd-theme-arrows.css" />
+<style>
+  .task-width {
+    width: 300px;
+  }
+  
+  .container {
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    width: 503px;
+
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    /* bring your own prefixes */
+    transform: translate(-50%, -50%);
+}
+  }
+</style>
+<script type="text/javascript" src="js/paper-full.js"></script>
+<script type="text/javascript" src="bower_components/numericjs/lib/numeric-1.2.6.js"></script>
+<!-- Define inlined PaperScript associate it with myCanvas -->
+<script type="text/javascript" src="js/bundle.js"></script>
+
+<script type="text/javascript" src="js/rater.js"></script>
+<script type="text/paperscript" src="js/sketch-logger.js" canvas="myCanvas"> </script>
+
+</head>
+<body>
+<div class="container">
+    <canvas id="myCanvas" height="500" width="500" style="border: solid;" keepalive="true"></canvas>
+</div>
+
+<!-- docs -->
+<script type="text/javascript" src="bower_components/shepherd.js/shepherd.js"></script>
+<script type="text/javascript" src="js/test_shepherd.js"></script>
+</body>
+</html>
