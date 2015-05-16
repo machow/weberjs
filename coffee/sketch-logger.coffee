@@ -50,6 +50,9 @@ class Recorder
         return tmp
 
     removeAll: () ->
+        @history.push
+            type: "removeAll"
+            time: Date.now()
         @group.removeChildren()
         
 

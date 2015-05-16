@@ -71,6 +71,10 @@
     };
 
     Recorder.prototype.removeAll = function() {
+      this.history.push({
+        type: "removeAll",
+        time: Date.now()
+      });
       return this.group.removeChildren();
     };
 

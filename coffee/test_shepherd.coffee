@@ -78,6 +78,8 @@ task =  {
         window.recUser.playEntry(entry) for entry in trialInstructs.clear
         {introCopy, cueCopy, removeStim} = trialInstructs
         @crntStim = if @demo then @stimGenerator() else @expStims.pop()
+
+        if not @crntStim then @replay()
         stream = [].concat(introCopy, @crntStim, removeStim, cueCopy)
         window.rec.addStream(stream, callback:callback)
     score: () ->
@@ -100,10 +102,10 @@ task =  {
             item: 'Path'
             options: 
                 segments: numeric.transpose(align.final)
+                strokeColor: 'black'
         )
         rec.playEntry(@crntStim)
         
-        window.scored.strokeColor='black'
         window.recUser.removeAll()
         window.notool.activate()
 
@@ -127,6 +129,13 @@ task =  {
         @demo = false
         @trialCopy()
 
+    replay: () ->
+        tour2.start()
+        recHist = window.rec.history
+        recUHist = window.recUser.history
+        opts = relStart: recHist[0].time
+        window.rec.addStream(recHist)
+        window.rec.addStream(recUHist, opts)
 }
 
 tour = new Shepherd.Tour
@@ -187,10 +196,18 @@ tour.addStep 'welcome',
         text: 'Begin'
         action: () ->
             tour.hide()
-            task.run(5)
+            task.run(2)
     ]
 
+tour2 = new Shepherd.Tour
+    defaults:
+        classes: 'shepherd-element shepherd-open shepherd-theme-arrows task-width'
+        scrollTo: false
 
+tour2.addStep 'replay-time',
+    text: "That's it! Now enjoy a replay of the task.."
+    attachTo: '.container right'
+    buttons: false
 
 tour.start()
 window.task = task
