@@ -92,7 +92,7 @@
       });
     },
     trialCopy: function(callback) {
-      var cueCopy, entry, i, introCopy, len, ref, removeStim, stream;
+      var cueCopy, entry, i, introCopy, j, len, len1, ref, ref1, removeStim, stream;
       if (callback == null) {
         callback = function() {
           return window.tool.activate();
@@ -102,6 +102,11 @@
       for (i = 0, len = ref.length; i < len; i++) {
         entry = ref[i];
         window.rec.playEntry(entry);
+      }
+      ref1 = trialInstructs.clear;
+      for (j = 0, len1 = ref1.length; j < len1; j++) {
+        entry = ref1[j];
+        window.recUser.playEntry(entry);
       }
       introCopy = trialInstructs.introCopy, cueCopy = trialInstructs.cueCopy, removeStim = trialInstructs.removeStim;
       this.crntStim = this.demo ? this.stimGenerator() : this.expStims.pop();

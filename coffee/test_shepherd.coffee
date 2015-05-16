@@ -75,6 +75,7 @@ task =  {
     trialCopy: (callback) ->
         callback ?= () -> window.tool.activate()
         window.rec.playEntry(entry) for entry in trialInstructs.clear
+        window.recUser.playEntry(entry) for entry in trialInstructs.clear
         {introCopy, cueCopy, removeStim} = trialInstructs
         @crntStim = if @demo then @stimGenerator() else @expStims.pop()
         stream = [].concat(introCopy, @crntStim, removeStim, cueCopy)
