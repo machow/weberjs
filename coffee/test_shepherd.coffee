@@ -37,9 +37,9 @@ trialInstructs =
         time: 2000
     ]
     removeStim: [
-        type: "pathToData"
-        name: "demoItem"
-        data: "stimShape"
+        type: "groupToData"
+        flatten: true
+        dataName: "stimShape"
         time: 3200
     ,
         type:"update"

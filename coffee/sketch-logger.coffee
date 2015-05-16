@@ -71,6 +71,8 @@ class Recorder
                 @removeAll()
             when "pathToData"
                 @pathToData(entry.name, entry.data)
+            when "groupToData"
+                @groupToData(entry.flatten, entry.data)
 
     addStream: (to, opts) ->
         if opts?.clear
@@ -113,13 +115,15 @@ class Recorder
             if not out then @playing.splice(ii, 1)
         return ii
 
-    groupToData: (flatten) ->
+    groupToData: (flatten, dataName) ->
         # TODO matchName is passed to match
-        allData = (@pathToData(obj) for obj in @group.children)
+        if flatten 
+            data = x: [], y: []
+            @pathToData(obj, data) for obj in @group.children
+        else data = @pathToData(obj) for obj in @group.children
+        if dataName then @data[dataName] = data
 
-        if flatten then return [].concat.apply([], allData)[0]
-
-        allData
+        return data
 
     pathToData: (name, data) ->
         if typeof name is 'string' then path = @group.children[name] else path = name
