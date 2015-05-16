@@ -147,7 +147,6 @@ obj = null
 recUser = new Recorder()
 
 tool = new Tool()
-tool.activate()
 tool.onMouseDown = (event) ->
     current_user = 'user-' + path_num
     obj ?= recUser.add 'Path', 
@@ -173,6 +172,7 @@ tool.onKeyDown = (event) ->
 
 # DUMMY TOOL FOR BLOCKING INPUT
 notool = new Tool()
+notool.activate()
 
 view.onFrame = (event) ->
     rec.runStream(performance.now())

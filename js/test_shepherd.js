@@ -192,7 +192,7 @@
       }
     ]
   }).addStep('instructs-2', {
-    text: "First an image is displayed briefly for you to remember. \n<br>\n<br>\n<br>\n<br>\nClick Repeat to watch again.",
+    text: "First an image is displayed briefly for you to remember. \n<br>\n<br>\nAfter the screen flashes green, you may draw the image.\n<br>\n<br>\nClick Repeat to watch again.",
     attachTo: '.container right',
     when: {
       show: function() {
@@ -209,7 +209,7 @@
       }
     ]
   }).addStep('instructs-3', {
-    text: "Next, try drawing the image you just saw. If you can't remember exactly, just make your best guess. \n When you are finished, press Spacebar.",
+    text: "Next, try drawing the image you just saw. If you can't remember exactly, just make your best guess. <br><br> When you are finished, press Spacebar.",
     attachTo: '.container right',
     buttons: [
       {

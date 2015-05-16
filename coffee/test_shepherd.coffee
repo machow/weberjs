@@ -153,6 +153,7 @@ tour.addStep 'welcome',
         First an image is displayed briefly for you to remember. 
         <br>
         <br>
+        After the screen flashes green, you may draw the image.
         <br>
         <br>
         Click Repeat to watch again."""
@@ -169,7 +170,7 @@ tour.addStep 'welcome',
 .addStep 'instructs-3',
     text: "Next, try drawing the image you just saw.  
            If you can't remember exactly, just make your best guess.
-           \n
+           <br><br>
            When you are finished, press Spacebar."
     attachTo: '.container right'
     buttons: [

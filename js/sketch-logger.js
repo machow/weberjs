@@ -213,8 +213,6 @@
 
   tool = new Tool();
 
-  tool.activate();
-
   tool.onMouseDown = function(event) {
     current_user = 'user-' + path_num;
     if (obj == null) {
@@ -243,6 +241,8 @@
   };
 
   notool = new Tool();
+
+  notool.activate();
 
   view.onFrame = function(event) {
     return rec.runStream(performance.now());
