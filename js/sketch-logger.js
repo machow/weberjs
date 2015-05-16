@@ -95,6 +95,8 @@
           return this.removeAll();
         case "pathToData":
           return this.pathToData(entry.name, entry.data);
+        case "groupToData":
+          return this.groupToData(entry.flatten, entry.data);
       }
     };
 
@@ -155,22 +157,29 @@
       return ii;
     };
 
-    Recorder.prototype.groupToData = function(flatten) {
-      var allData, obj;
-      allData = (function() {
-        var i, len, ref, results;
+    Recorder.prototype.groupToData = function(flatten, dataName) {
+      var data, i, j, len, len1, obj, ref, ref1;
+      if (flatten) {
+        data = {
+          x: [],
+          y: []
+        };
         ref = this.group.children;
-        results = [];
         for (i = 0, len = ref.length; i < len; i++) {
           obj = ref[i];
-          results.push(this.pathToData(obj));
+          this.pathToData(obj, data);
         }
-        return results;
-      }).call(this);
-      if (flatten) {
-        return [].concat.apply([], allData)[0];
+      } else {
+        ref1 = this.group.children;
+        for (j = 0, len1 = ref1.length; j < len1; j++) {
+          obj = ref1[j];
+          data = this.pathToData(obj);
+        }
       }
-      return allData;
+      if (dataName) {
+        this.data[dataName] = data;
+      }
+      return data;
     };
 
     Recorder.prototype.pathToData = function(name, data) {

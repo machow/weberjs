@@ -165,17 +165,11 @@ tour.addStep 'welcome',
         <br>
         After the screen flashes green, you may draw the image.
         <br>
-        <br>
-        Click Repeat to watch again."""
+        <br>"""
     attachTo: '.container right'
-    when:
-        show: () -> task.demoCopy()
     buttons: [
-        text: 'Repeat'
-        action: task.demoCopy
-    ,
-        text: 'Next'
-        action: tour.next
+        text: 'Start'
+        action: () -> task.demoCopy()
     ]
 .addStep 'instructs-3',
     text: "Next, try drawing the image you just saw.  

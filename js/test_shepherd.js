@@ -50,9 +50,9 @@
     ],
     removeStim: [
       {
-        type: "pathToData",
-        name: "demoItem",
-        data: "stimShape",
+        type: "groupToData",
+        flatten: true,
+        dataName: "stimShape",
         time: 3200
       }, {
         type: "update",
@@ -211,20 +211,14 @@
       }
     ]
   }).addStep('instructs-2', {
-    text: "First an image is displayed briefly for you to remember. \n<br>\n<br>\nAfter the screen flashes green, you may draw the image.\n<br>\n<br>\nClick Repeat to watch again.",
+    text: "First an image is displayed briefly for you to remember. \n<br>\n<br>\nAfter the screen flashes green, you may draw the image.\n<br>\n<br>",
     attachTo: '.container right',
-    when: {
-      show: function() {
-        return task.demoCopy();
-      }
-    },
     buttons: [
       {
-        text: 'Repeat',
-        action: task.demoCopy
-      }, {
-        text: 'Next',
-        action: tour.next
+        text: 'Start',
+        action: function() {
+          return task.demoCopy();
+        }
       }
     ]
   }).addStep('instructs-3', {
