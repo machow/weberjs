@@ -72,7 +72,7 @@ class Recorder
             when "pathToData"
                 @pathToData(entry.name, entry.data)
             when "groupToData"
-                @groupToData(entry.flatten, entry.data)
+                @groupToData(entry.flatten, entry.dataName)
 
     addStream: (to, opts) ->
         if opts?.clear

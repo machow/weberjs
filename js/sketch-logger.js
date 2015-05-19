@@ -96,7 +96,7 @@
         case "pathToData":
           return this.pathToData(entry.name, entry.data);
         case "groupToData":
-          return this.groupToData(entry.flatten, entry.data);
+          return this.groupToData(entry.flatten, entry.dataName);
       }
     };
 

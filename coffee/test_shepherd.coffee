@@ -54,11 +54,11 @@ trialInstructs =
             from: [0, 0]
             to: [600, 600]
             fillColor: 'lightgreen'
-        time: 8000
+        time: 7000
         name: "copyCue"
     ,
         type: "removeAll"
-        time: 8500
+        time: 7500
     ]
 
 
