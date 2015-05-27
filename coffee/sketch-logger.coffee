@@ -1,3 +1,6 @@
+paper.setup(document.getElementById('myCanvas'))
+Group = paper.Group
+
 class Recorder
     constructor: (history, group) ->
         @history = if history? then history else []
@@ -142,73 +145,4 @@ class Recorder
 
         return data
 
-rec = new Recorder()
-
-#rec.add('Path', {name: 'george', strokeColor: 'black'})
-#rec.update('george', 'addSegments', [{x: 100, y: 100}, {x: 200, y: 200}])
-
-# TMP GLOBALS
-path_num = 0
-current_user = 'user-' + path_num
-obj = null
-recUser = new Recorder()
-
-tool = new Tool()
-tool.onMouseDown = (event) ->
-    current_user = 'user-' + path_num
-    obj ?= recUser.add 'Path', 
-        segment: [event.point.x, event.point.y]
-        name: current_user
-        strokeColor: 'black'
-
-    path_num++
-    
-tool.onMouseDrag = (event) ->
-    obj = recUser.update(current_user, 'add', [event.point.x, event.point.y])
-
-    return null
-    
-
-tool.onMouseUp = (event) ->
-    obj = null
-
-# SERIOUS SPEGHETTI FOR THIS FUNCTION
-tool.onKeyDown = (event) ->
-    if event.key == 'space' then task.score()
-
-
-# DUMMY TOOL FOR BLOCKING INPUT
-notool = new Tool()
-notool.activate()
-
-view.onFrame = (event) ->
-    rec.runStream(performance.now())
-
-
-window.rec = rec
-window.recUser = recUser
 window.Recorder = Recorder
-window.tool = tool
-window.notool = notool
-
-#star1 = new Path.Star([250, 250], 3, 100, 50)
-#star1.strokeColor = 'blue'
-#star1.opacity = .7
-#star2 = star1.clone()
-#star2.strokeColor='red'
-#star2.rotation = 25
-#star2.scale(2)
-#star2.opacity = .7
-#
-#d1 = rec.pathToData(star1)
-#d2 = rec.pathToData(star2)
-#
-#dst = [d1.x, d1.y]
-#src = [d2.x, d2.y]
-
-#window.star1 = star1
-#window.star2 = star2
-#window.src = src
-#window.dst = dst
-#window.dst2 = ([dst[0][ii], dst[1][ii]] for ii in [1..dst[0].length] by 1)
-#window.alignedup = ir.procrustes(src, dst, 50)

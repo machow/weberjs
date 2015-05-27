@@ -1,12 +1,12 @@
 {
-  "name": "simple-sketchjs",
+  "name": "weber",
   "version": "0.0.0",
   "authors": [
     "Michael Chow <machow@princeton.edu>"
   ],
-  "description": "basic sketching application for experiments",
+  "description": "simple animation and event-based canvas tool",
   "license": "MIT",
-  "homepage": "https://github.com/machow",
+  "homepage": "https://github.com/machow/weberjs",
   "ignore": [
     "**/.*",
     "node_modules",
@@ -14,14 +14,8 @@
     "test",
     "tests"
   ],
-  "devDependencies": {
-    "paper": "~0.9.22"
-  },
   "dependencies": {
     "perfnow-polyfill": "*",
-    "paper": "~0.9.22",
-    "shepherd": "*",
-    "shepherd.js": "~0.7.1",
-    "numericjs": "~1.2.6"
+    "paper": "~0.9.22"
   }
 }
