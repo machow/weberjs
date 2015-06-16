@@ -19,6 +19,7 @@
 <div id="container">
   <p>
     <button id="run">Run</button>
+    <button id="clear">clearStream</button>
   </p>
   <div id="jsoneditor" style="float: left"></div>
   <div id="canvas-container" style="border:solid;float:left;">
@@ -30,6 +31,10 @@
 <script type="text/javascript" src="../js/weber.js"></script>
 <script>
   var demoStream = [
+    {
+      type: "metadata",
+      name: "a-stream"
+    },
     {
       type: "add",
       item: "PointText",
@@ -83,6 +88,32 @@
     {
       type: "removeAll",
       time: 4000
+    },
+    {
+      type: "addStream",
+      name: "reg",
+      time: 4500
+    }
+  ]
+
+  var demoStream2 = [
+    {
+      type: "add",
+      item: "PointText",
+      options: {
+        point: [250, 250],
+        justification: 'center',
+        content: 'Registered Text',
+        strokeColor: 'red',
+        name: "regText"
+      },
+      time: 1000
+    },
+    {
+      type: "update",
+      name: "regText",
+      method: "remove",
+      time: 2000
     }
   ]
 
@@ -90,11 +121,17 @@
   var editor = new JSONEditor(container); 
   editor.set(demoStream)
 
-  var recorder = new Recorder()
+  var recorder = new Recorder();
+  recorder.register('reg', demoStream2);
 
   document.getElementById('run').onclick = function(){
     console.log('running')
     recorder.addStream(editor.get())
+  }
+
+  document.getElementById('clear').onclick = function(){
+    console.log('clearStream')
+    recorder.clearStream('a-stream')
   }
 
   paper.view.onFrame = function(event){
