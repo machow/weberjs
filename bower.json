@@ -17,6 +17,7 @@
   "dependencies": {
     "perfnow-polyfill": "*",
     "paper": "~0.9.22",
-    "tweenjs": "*"
+    "tweenjs": "*",
+    "easeljs": "~0.8.1"
   }
 }
