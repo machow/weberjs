@@ -5,11 +5,11 @@ class Recorder
     constructor: (history, group) ->
         @history = if history? then history else []
         @group = if group then group else new Group(name:'default')
-        @channels = {}
+        @registered = {}
+        #@channels = {}
         @playing = []
-        @data = {}
-
-        @channels[@group.name] = @group
+        #@data = {}
+        #@channels[@group.name] = @group
 
     getProperty: (obj, prop) ->
         # gets nested properties separated by '.'
@@ -65,22 +65,30 @@ class Recorder
                     @add(entry.item, entry.options)
             when "update"
                 @update(entry.name, entry.method, entry.options)
-            when "clearStreams"
-                @clearStreams()
+            when "clearStream"
+                @clearStream(entry.name)
             when "removeAll"
                 @removeAll()
             when "pathToData"
                 @pathToData(entry.name, entry.data)
+            when "addStream"
+                @addStream(entry.name, entry.options)
 
-    addStream: (to, opts) ->
-        if opts?.clear
-            # remove items named in playback
-            old_g = @group.remove()
-            @group = new Group(name: opts?.name ? 'default')
-        
-        # to is either string or array of commands
-        disc = if typeof to is 'string' then @history[..to] else to
+    addStream: (disc, opts) ->
+        # Metadata
+        # TODO: clean up this name business
+        if typeof disc == 'string'
+            name = disc
+            disc = @registered[name]
+            console.log(disc)
 
+        if disc[0].type == 'metadata'
+            meta = disc.splice(0,1)[0]
+            console.log(meta)
+            name = meta.name || ''
+        else name = ''
+
+        # relative timing
         if not opts?.relStart
             # first item plays instantly
             offsetTime = performance.now() - disc[0]['time']
@@ -88,54 +96,64 @@ class Recorder
 
         if opts?.callback then callback = opts.callback
 
-        self = @
         crnt_ii = 0
         length = disc.length
-        @playing.push f = (crntTime) ->
+        f = (crntTime) =>
             while disc[crnt_ii] and disc[crnt_ii].time + offsetTime < crntTime
-                self.playEntry(disc[crnt_ii])
+                @playEntry(disc[crnt_ii])
                 crnt_ii++
             remaining = length - crnt_ii
             if not remaining then callback?()
             return remaining
+
+        @playing.push [name, f]
         return f
                 
-    clearStreams: (stream_ii) ->
-        # TODO this is very incomplete, should change @playing to object
-        if not stream_ii? then @playing = []
+    clearStream: (name) ->
+        # TODO this is inefficient lookup, should use hash table?
+        if not name? then @playing = []
+        else 
+            if not Array.isArray(name) then name = [name]
+            for stream, ii in @playing
+                if stream[0] in name then @playing.splice(ii, 1)
+
         return @playing.length
 
     runStream: (crntTime) ->
         for stream, ii in @playing by -1
-            out = if stream then stream(crntTime)
+            out = if stream then stream[1](crntTime)  # this is a hack to keep names
             #console.log(out)
             #console.log(not out)
             if not out then @playing.splice(ii, 1)
         return ii
 
-    groupToData: (flatten) ->
-        # TODO matchName is passed to match
-        allData = (@pathToData(obj) for obj in @group.children)
-
-        if flatten then return [].concat.apply([], allData)[0]
-
-        allData
-
-    pathToData: (name, data) ->
-        if typeof name is 'string' then path = @group.children[name] else path = name
-
-        data = if typeof data is 'string' then @data[data] = {x: [], y: []} 
-        else data ?= x: [], y: []
-        path = path.clone()
-        path.remove()
-        path.flatten(2)
-        for seg in path._segments
-            data.x.push(seg._point.x)
-            data.y.push(seg._point.y)
-
-        data.name = path.name
-        data.group = path.group
-
-        return data
+    register: (name, stream) ->
+        if typeof name == 'object' then @registered = name
+        else @registered[name] = stream
+        
+#    groupToData: (flatten) ->
+#        # TODO matchName is passed to match
+#        allData = (@pathToData(obj) for obj in @group.children)
+#
+#        if flatten then return [].concat.apply([], allData)[0]
+#
+#        allData
+#
+#    pathToData: (name, data) ->
+#        if typeof name is 'string' then path = @group.children[name] else path = name
+#
+#        data = if typeof data is 'string' then @data[data] = {x: [], y: []} 
+#        else data ?= x: [], y: []
+#        path = path.clone()
+#        path.remove()
+#        path.flatten(2)
+#        for seg in path._segments
+#            data.x.push(seg._point.x)
+#            data.y.push(seg._point.y)
+#
+#        data.name = path.name
+#        data.group = path.group
+#
+#        return data
 
 window.Recorder = Recorder
