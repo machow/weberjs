@@ -8,6 +8,7 @@ class Recorder
         @registered = {}
         #@channels = {}
         @playing = []
+        @events = window.events #TODO better modularization
         #@data = {}
         #@channels[@group.name] = @group
 
@@ -52,6 +53,24 @@ class Recorder
         }
         return tmp
 
+    updateOn: (name, event, options) ->
+        # copied from update TODO should consolidate?
+        # look object up by name if necessary
+        if typeof name is 'string' then obj = @group.children[name] else name
+        
+        if not obj
+            throw "paper object not found, wrong name: " + name + "?"
+
+        if typeof event is "string"
+            handler = @events[event](options)
+            obj.on(event, handler)
+        else 
+            # event is object with event names as keys
+            for opts, event of events
+                handler = @events[key](opts)
+                obj.on(event, handler)
+
+
     removeAll: () ->
         @group.removeChildren()
         
@@ -65,6 +84,8 @@ class Recorder
                     @add(entry.item, entry.options)
             when "update"
                 @update(entry.name, entry.method, entry.options)
+            when "updateOn"
+                @updateOn(entry.name, entry.event, entry.options)
             when "clearStream"
                 @clearStream(entry.name)
             when "removeAll"
@@ -83,7 +104,7 @@ class Recorder
             console.log(disc)
 
         if disc[0].type == 'metadata'
-            meta = disc.splice(0,1)[0]
+            meta = disc[0]
             console.log(meta)
             name = meta.name || ''
         else name = ''
@@ -99,8 +120,10 @@ class Recorder
         crnt_ii = 0
         length = disc.length
         f = (crntTime) =>
-            while disc[crnt_ii] and disc[crnt_ii].time + offsetTime < crntTime
-                @playEntry(disc[crnt_ii])
+            while (entry = disc[crnt_ii]) and disc[crnt_ii].time + offsetTime < crntTime
+                console.log(entry)
+                if entry.type != 'metadata'  #TODO fix naming / metadata
+                    @playEntry(entry)
                 crnt_ii++
             remaining = length - crnt_ii
             if not remaining then callback?()
@@ -122,8 +145,6 @@ class Recorder
     runStream: (crntTime) ->
         for stream, ii in @playing by -1
             out = if stream then stream[1](crntTime)  # this is a hack to keep names
-            #console.log(out)
-            #console.log(not out)
             if not out then @playing.splice(ii, 1)
         return ii
 
