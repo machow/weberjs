@@ -20,25 +20,27 @@ class Recorder
 
         return obj
 
-    add: (item, options, extra...) ->
+    add: (item, options, events) ->
         if typeof item is 'string'
             Cls = @getProperty(paper, item)
-            p_obj = new Cls(options, extra...)
+            p_obj = new Cls(options)
             @history.push {
                 type: 'add'
                 item: item
                 options: options
-                extra: extra
+                events: events
                 time: Date.now()
             }
             @group.addChild(p_obj)
+
+            @updateOn(p_obj, events) if events
             return p_obj
         else throw "item must be the name of a paper object"
 
 
     update: (name, method, options) ->
         # look object up by name if necessary
-        if typeof name is 'string' then obj = @group.children[name] else name
+        obj = if typeof name is 'string' then @group.children[name] else name
         
         if not obj
             throw "paper object not found, wrong name: " + name + "?"
@@ -56,33 +58,37 @@ class Recorder
     updateOn: (name, event, options) ->
         # copied from update TODO should consolidate?
         # look object up by name if necessary
-        if typeof name is 'string' then obj = @group.children[name] else name
+        obj = if typeof name is 'string' then @group.children[name] else name
         
         if not obj
             throw "paper object not found, wrong name: " + name + "?"
 
         if typeof event is "string"
-            handler = @events[event](options)
+            handler = @streamWrapper(@events[event](options))
             obj.on(event, handler)
         else 
             # event is object with event names as keys
-            for opts, event of events
-                handler = @events[key](opts)
-                obj.on(event, handler)
+            for key, opts of event
+                handler = @streamWrapper(@events[key](opts))
+                obj.on(key, handler)
 
+    streamWrapper: (handler) ->
+        return (event) =>
+            if stream = handler(event) then @addStream(stream, context: event.target)
 
     removeAll: () ->
         @group.removeChildren()
         
 
-    playEntry: (entry) ->
+    playEntry: (entry, context) ->
+        # Consider switching to hash reference? I'm not sure how js compiles
+        # switch statements...
         switch entry.type
             when "add"
-                if entry.extra
-                    @add(entry.item, entry.options, entry.extra...)
-                else
-                    @add(entry.item, entry.options)
+                @add(entry.item, entry.options, entry.events)
             when "update"
+                # TODO this should just be a wrapper, and not contain logic
+                entry.name ?= context
                 @update(entry.name, entry.method, entry.options)
             when "updateOn"
                 @updateOn(entry.name, entry.event, entry.options)
@@ -94,6 +100,8 @@ class Recorder
                 @pathToData(entry.name, entry.data)
             when "addStream"
                 @addStream(entry.name, entry.options)
+            # ignore "metadata"
+
 
     addStream: (disc, opts) ->
         # Metadata
@@ -117,13 +125,13 @@ class Recorder
 
         if opts?.callback then callback = opts.callback
 
+        context = opts?.context
         crnt_ii = 0
         length = disc.length
         f = (crntTime) =>
-            while (entry = disc[crnt_ii]) and disc[crnt_ii].time + offsetTime < crntTime
+            while (entry = disc[crnt_ii]) and entry.time + offsetTime < crntTime
                 console.log(entry)
-                if entry.type != 'metadata'  #TODO fix naming / metadata
-                    @playEntry(entry)
+                @playEntry(entry, context)
                 crnt_ii++
             remaining = length - crnt_ii
             if not remaining then callback?()
