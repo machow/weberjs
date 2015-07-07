@@ -41,13 +41,8 @@
         strokeColor: 'black',
         name: "instructionsText"
       },
+      log: {textContent: 'content'},
       time: 500
-    },
-    {
-      type: "update",
-      name: "instructionsText",
-      method: "remove",
-      time: 1500
     },
     {
       type: "add",
@@ -56,40 +51,43 @@
         center: [300, 200],
         radius: 50,
         strokeColor: 'black',
+        fillColor: 'white',
         name: 'aCircle'
       },
+      log: ['area', 'length'],
+      time: 2000,
+      events: {
+        'doubleclick': [{
+            type: 'update',
+            method: 'set',
+            time: 0,
+            options: { strokeColor: 'green'}
+          },
+          {
+            type: 'log',
+            name: 'aCircle',
+            props: ['strokeColor.components', '#time'],
+            time: 0
+          },
+          {
+            type: 'logMethod',
+            method: 'nextEntry',
+            time: 0
+          }
+        ]
+      }
+    },
+    {
+      type: 'log',
+      name: 'aCircle',
+      props: ['position.x', 'position.y'],
       time: 2000
-    },
-    {
-      type: "add",
-      item: "Path.Star",
-      options: {
-        center: [150, 250],
-        points: 3,
-        radius1: 50,
-        radius2: 50,
-        strokeColor: 'red',
-        name: 'aStar'
-      },
-      time: 2500
-    },
-    {
-      type: "add",
-      item: "Path.Rectangle",
-      options: {
-        from: [310, 340],
-        to: [420, 440],
-        strokeColor: 'blue',
-        strokeWidth: 10
-      },
-      time: 3000
     },
     {
       type: "removeAll",
       time: 4500
     }
   ]
-
 
   var container = document.getElementById('jsoneditor')
   var editor = new JSONEditor(container); 
