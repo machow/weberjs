@@ -6,6 +6,7 @@ class Recorder
         @history = if history? then history else []
         @group = if group then group else new Group(name:'default')
         @registered = {}
+        @logger = new Logger()
         #@channels = {}
         @playing = []
         @events = window.events #TODO better modularization
@@ -72,6 +73,16 @@ class Recorder
                 handler = @streamWrapper(@events[key](opts))
                 obj.on(key, handler)
 
+    log: (name, props) ->
+        obj = if typeof name is 'string' then @group.children[name] else name
+        
+        @logger.log(obj, props)
+
+    logMethod: (method, options) ->
+        @logger[method](options)
+
+
+
     streamWrapper: (handler) ->
         return (event) =>
             if stream = handler(event) then @addStream(stream, context: event.target)
@@ -96,10 +107,14 @@ class Recorder
                 @clearStream(entry.name)
             when "removeAll"
                 @removeAll()
-            when "pathToData"
-                @pathToData(entry.name, entry.data)
+            when "register"
+                @register(entry.name, entry.options)
             when "addStream"
                 @addStream(entry.name, entry.options)
+            when "log"
+                @log(entry.name, entry.props)
+            when "logMethod"
+                @logMethod(entry.method, entry.options)
             # ignore "metadata"
 
 
