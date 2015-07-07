@@ -93,7 +93,7 @@
   var editor = new JSONEditor(container); 
   editor.set(demoStream)
 
-  var recorder = new Recorder();
+  var recorder = new Recorder('myCanvas');
 
   document.getElementById('run').onclick = function(){
     console.log('running')

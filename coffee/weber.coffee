@@ -1,17 +1,19 @@
-paper.setup(document.getElementById('myCanvas'))
-Group = paper.Group
+#paper.setup(document.getElementById('myCanvas'))
 
 class Recorder
-    constructor: (history, group) ->
+    constructor: (canvasId, history, group) ->
         @history = if history? then history else []
-        @group = if group then group else new Group(name:'default')
         @registered = {}
         @logger = new Logger()
         #@channels = {}
         @playing = []
         @events = window.events #TODO better modularization
-        #@data = {}
-        #@channels[@group.name] = @group
+        
+        # setup new paperscope
+        @paper = new paper.PaperScope()
+        @paper.setup(canvasId)
+
+        @group = if group then group else new @paper.Group(name:'default')
 
     getProperty: (obj, prop) ->
         # gets nested properties separated by '.'
@@ -21,9 +23,9 @@ class Recorder
 
         return obj
 
-    add: (item, options, events) ->
+    add: (item, options, events, log) ->
         if typeof item is 'string'
-            Cls = @getProperty(paper, item)
+            Cls = @getProperty(@paper, item)
             p_obj = new Cls(options)
             @history.push {
                 type: 'add'
@@ -35,6 +37,8 @@ class Recorder
             @group.addChild(p_obj)
 
             @updateOn(p_obj, events) if events
+            @log(p_obj, log)         if log
+
             return p_obj
         else throw "item must be the name of a paper object"
 
@@ -96,7 +100,7 @@ class Recorder
         # switch statements...
         switch entry.type
             when "add"
-                @add(entry.item, entry.options, entry.events)
+                @add(entry.item, entry.options, entry.events, entry.log)
             when "update"
                 # TODO this should just be a wrapper, and not contain logic
                 entry.name ?= context
