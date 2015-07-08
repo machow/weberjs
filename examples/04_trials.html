@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+
+  <link href="css/jsoneditor.css" rel="stylesheet" type="text/css">
+  <script src="js/jsoneditor.min.js"></script>
+  <script src="js/paper-full.js"></script>
+
+  <style type="text/css">
+    #jsoneditor {
+      width: 400px;
+      height: 500px;
+    }
+  </style>
+</head>
+<body>
+<div id="container">
+  <p>
+    <button id="run">Run</button>
+    <button id="clear">clearStream</button>
+  </p>
+  <div id="jsoneditor" style="float: left"></div>
+  <div id="canvas-container" style="border:solid;float:left;">
+    <canvas id="myCanvas" style="border:2px; width:500px; height:500px;"></canvas>
+  </div>
+</div>
+  
+
+<script type="text/javascript" src="../js/weber.js"></script>
+<script>
+  var demoStream = [
+    {
+      type: "removeAll",
+      time: 0
+    },
+    {
+      type: "add",
+      item: "PointText",
+      options: {
+        point: [250, 250],
+        justification: 'center',
+        content: '{{CUE}}',
+        strokeColor: 'black',
+        name: "instructionsText"
+      },
+      time: 500
+    },
+    {
+      type: "add",
+      item: "Path.Circle",
+      options: {
+        center: ["{{CIRCLE_X}}", "{{CIRCLE_Y}}"],
+        radius: 50,
+        strokeColor: 'black',
+        name: 'aCircle'
+      },
+      time: 2000
+    }
+  ]
+
+
+  var container = document.getElementById('jsoneditor')
+  var editor = new JSONEditor(container); 
+  editor.set(demoStream)
+
+  var recorder = new Recorder('myCanvas');
+
+  document.getElementById('run').onclick = function(){
+    console.log('running');
+    var template = editor.get();
+    console.log(template);
+    var trial = runner.functize(template)({
+      CUE: "beginning prompt",
+      CIRCLE_X: 200,
+      CIRCLE_Y: 300
+    });
+    recorder.addStream(trial)
+  }
+
+  document.getElementById('clear').onclick = function(){
+    console.log('clearStream')
+    recorder.clearStream()
+  }
+
+  paper.view.onFrame = function(event){
+    recorder.runStream(performance.now())
+  }
+</script>
+</body>
+</html>
+
