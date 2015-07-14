@@ -1,6 +1,7 @@
 var getProperty = runner._getProperty,
     getParams = runner._getParams,
-    functize = runner.functize
+    functize = runner.functize,
+    TrialRunner = runner.TrialRunner
 
 describe('test runner', function(){
     //var log, obj
@@ -82,4 +83,41 @@ describe('test runner', function(){
             c1: {c2: '_C2'}
         })
     });
-})
+});
+
+describe('test runner:TrialRunner', function(){
+    var TR, min_TR
+    beforeEach(function(){
+        trials = [{id: "0", trial: function(){return 'a'}},
+                      {id: "1", trial: function(){return 'b'}},
+                      {id: "2", trial: function(){return 'c'}}]
+        min_TR = new TrialRunner()
+        full_TR = new TrialRunner(trials, function(chunk){return chunk()});
+    });
+    it('adds chunks', function(){
+        min_TR.add("0", 'a chunk');
+        min_TR.add("1", 'another');
+        expect(min_TR.trialTimeline).toEqual([{id: "0", trial: 'a chunk'}, {id: "1", trial: 'another'}]);
+    });
+
+    it('takes a custom run function', function(){
+        var TR = new TrialRunner([], function(chunk){return 'custom ' + chunk});
+        TR.add("0", 'chunk');
+        var result = TR.runCrntChunk();
+        expect(result).toEqual('custom chunk');
+    });
+
+    it('can nextChunk then runCrntChunk', function(){
+        full_TR.nextChunk();
+        var result = full_TR.runCrntChunk();
+        expect(result).toEqual('b');
+    });
+
+    it('can goToChunk', function(){
+        var chunk2 = full_TR.goToChunk("2");
+        expect(chunk2).toEqual(Number(trials[2].id));
+
+        var result = full_TR.runCrntChunk();
+        expect(result).toEqual('c');
+    })
+});

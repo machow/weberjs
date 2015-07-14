@@ -45,7 +45,91 @@ functize = (template, copy=true) ->
             getProperty(crnt_template, path, val)
         return crnt_template 
 
+class TrialRunner
+    constructor: (timeline = [], @runFunc) -> 
+        @trialTimeline = []
+        @chunkIds = {}
+        @active = false
+        @crnt_chunk = 0
+
+        @add(entry.id, entry.trial) for entry in timeline
+
+    add: (id="", trial) ->
+        if id of @chunkIds then throw "id already in use"
+        else @chunkIds[id] = @trialTimeline.length
+
+        chunk = id: id, trial: trial
+        @trialTimeline.push(chunk)
+
+    nextChunk: () ->
+        @crnt_chunk++
+        if @crnt_chunk < @trialTimeline.length then @trialTimeline[@crnt_chunk]
+        else return null
+
+    goToChunk: (chunkId) ->
+        @crnt_chunk = @chunkIds[chunkId]
+
+    runChunk: (rawChunk) ->
+        if @runFunc then @runFunc(rawChunk) else rawChunk()
+
+    runCrntChunk: () ->
+        @active = true
+        console.log "running trial #{@crnt_chunk}"
+        @runChunk(@trialTimeline[@crnt_chunk].trial)
+
+    end: () ->
+        return null
+
+    reset: () ->
+        @trialTimeline = []
+        @chunkIds = {}
+        @crnt_chunk = 0
+
+
+class Block
+    constructor: (@disc, {@callback, @context, @event, @playEntry}) ->
+        #if typeof disc == 'string'
+        #    name = disc
+        #    disc = @registered[name]
+        #    console.log(disc)
+
+        # parse metadata
+        @name = ""
+        @crnt_ii = 0
+        @children = []
+
+        if @disc[0].type is 'metadata' then @parseMetaData(@disc[0])
+
+        # parse options
+
+        @startTime = performance.now()
+
+    parseMetaData: ({@name}) ->
+
+    run: (crntTime) ->
+        while (entry = @disc[@crnt_ii]) and 
+              (entry.time is undefined or entry.time + @startTime < crntTime)
+            console.log(entry)
+            @playEntry(entry, @context, @event)
+            @crnt_ii++
+        remaining = @disc.length - @crnt_ii
+        if not remaining 
+            console.log('spent')
+            @callback?()
+        return remaining
+
+    addChild: (child) ->
+        @children.push(child)
+
+    end: () ->
+        @crnt_ii = @disc.length
+    
+
+
+
 window.runner = 
     _getProperty: getProperty,
     _getParams: getParams,
     functize: functize
+    TrialRunner: TrialRunner
+    Block: Block

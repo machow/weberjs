@@ -31,7 +31,10 @@
 <script type="text/javascript" src="../js/weber.js"></script>
 <script>
   var demoStream = [
-    {
+   {
+     type: "removeAll",
+   },
+   {
       type: "add",
       item: "PointText",
       options: {
@@ -82,12 +85,8 @@
       name: 'aCircle',
       props: ['position.x', 'position.y'],
       time: 2000
-    },
-    {
-      type: "removeAll",
-      time: 4500
     }
-  ]
+]
 
   var container = document.getElementById('jsoneditor')
   var editor = new JSONEditor(container); 
@@ -97,16 +96,16 @@
 
   document.getElementById('run').onclick = function(){
     console.log('running')
-    recorder.addStream(editor.get())
+    recorder.addBlock(editor.get())
   }
 
   document.getElementById('clear').onclick = function(){
-    console.log('clearStream')
-    recorder.clearStream()
+    console.log('clearBlock')
+    recorder.clearBlock()
   }
 
   paper.view.onFrame = function(event){
-    recorder.runStream(performance.now())
+    recorder.runBlocks(performance.now())
   }
 </script>
 </body>

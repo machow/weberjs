@@ -95,20 +95,21 @@
   var editor = new JSONEditor(container); 
   editor.set(demoStream)
 
-  var recorder = new Recorder('myCanvas');
+  canvas = document.getElementById('myCanvas');
+  var recorder = new Recorder(canvas);
 
   document.getElementById('run').onclick = function(){
     console.log('running')
-    recorder.addStream(editor.get())
+    recorder.addBlock(editor.get())
   }
 
   document.getElementById('clear').onclick = function(){
-    console.log('clearStream')
-    recorder.clearStream()
+    console.log('clearBlock')
+    recorder.clearBlock()
   }
 
   paper.view.onFrame = function(event){
-    recorder.runStream(performance.now())
+    recorder.runBlocks(performance.now())
   }
 </script>
 </body>

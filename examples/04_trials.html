@@ -71,22 +71,31 @@
     console.log('running');
     var template = editor.get();
     console.log(template);
-    var trial = runner.functize(template)({
+    var trial1 = runner.functize(template)({
       CUE: "beginning prompt",
       CIRCLE_X: 200,
       CIRCLE_Y: 300
     });
-    recorder.addStream(trial)
+
+    var trial2 = runner.functize(template)({
+      CUE: "second prompt",
+      CIRCLE_X: 100,
+      CIRCLE_Y: 50
+    });
+    recorder.TR.reset()
+    recorder.TR.add(0, trial1);
+    recorder.TR.add(1, trial2);
+    recorder.run();
   }
 
   document.getElementById('clear').onclick = function(){
-    console.log('clearStream')
-    recorder.clearStream()
+    console.log('clearBlock')
+    recorder.clearBlock()
   }
 
-  paper.view.onFrame = function(event){
-    recorder.runStream(performance.now())
-  }
+  //paper.view.onFrame = function(event){
+  //  recorder.runBlock(performance.now())
+  //}
 </script>
 </body>
 </html>
