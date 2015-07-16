@@ -1,4 +1,4 @@
-class Recorder
+class Stitch
     constructor: (canvasId, chunks = {}) ->
         @history = []
         @registered = {}
@@ -7,37 +7,41 @@ class Recorder
         # modules
         @logger = new Logger()
         @events = window.events #TODO better modularization
-        @runner = window.runner
+        @runner = window.runner #TODO just get TrialRunner and Thread
         
         # setup new paperscope
         @paper = new paper.PaperScope()
         @paper.setup(canvasId)
+        @paper.view.on 'frame', () => @runThreads(performance.now())
 
         @group = new @paper.Group(name:'default')
 
         # Trial Runner
-        TR = new runner.TrialRunner([])
-        @TR = TR
+        @TR = new runner.TrialTimeline([])
         for chunk, ii in chunks 
-            TR.add(ii, chunk)
-        # 
-        @paper.view.onFrame = (event) =>
-            if not TR.active then return 
+            @TR.add(ii, chunk)
 
-            remaining = @runBlocks(performance.now())
-            if not remaining and TR.nextChunk()?
-                TR.runCrntChunk()
-            else 
-                #@paper.view.off('frame')
-                TR.end()
-
-        TR.runFunc = (chunk) =>
-            @addBlock(chunk)
-
-        #@paper.view.onFrame = (event) =>
-        #    @runBlocks(performance.now())
+        @TR.runFunc = (chunk) =>
+            done = => @TR.nextChunk() and @TR.runCrntChunk()
+            if typeof chunk is "object"
+                @addThread(chunk, callback: done)
+            else if typeof chunk is "function"
+                chunk(done)
 
     run: -> @TR.runCrntChunk()
+
+   # attachPaperChunk: () =>
+   #     # Drives TrialRunner for stream blocks
+   #     f = () =>
+   #         remaining = @runThread(performance.now())
+   #         if not remaining
+   #             @TR.runCrntChunk()
+   #         else 
+   #             # No more trials, end and remove handler
+   #             @TR.end()
+   #             @paper.view.off('frame', f)
+
+   #    @paper.view.on('frame', f)
 
     getProperty: (obj, prop) ->
         # gets nested properties separated by '.'
@@ -111,7 +115,7 @@ class Recorder
 
     blockContextWrapper: (handler) ->
         return (event) =>
-            if stream = handler(event) then @addBlock(stream, context: event.target)
+            if stream = handler(event) then @addThread(stream, context: event.target)
 
     removeAll: () ->
         @group.removeChildren()
@@ -129,30 +133,30 @@ class Recorder
                 @update(entry.name, entry.method, entry.options)
             when "updateOn"
                 @updateOn(entry.name, entry.event, entry.options)
-            when "clearBlock"
-                @clearBlock(entry.name)
+            when "clearThread"
+                @clearThread(entry.name)
             when "removeAll"
                 @removeAll()
             when "register"
                 @register(entry.name, entry.options)
-            when "addStream"
-                @addStream(entry.name, entry.options)
-            when "addBlock"
-                @addBlock(entry.name, entry.options)
+            when "addThread"
+                @addThread(entry.name, entry.options)
             when "log"
                 @log(entry.name, entry.props)
             when "logMethod"
                 @logMethod(entry.method, entry.options)
+            when "func"
+                entry.func()
             # ignore "metadata"
 
-    addBlock: (disc, opts = {}) ->
+    addThread: (disc, opts = {}) ->
         if typeof disc is "string"
             disc = @registered[disc]
         opts.playEntry = @playEntry
-        block = new runner.Block(disc, opts)
+        block = new runner.Thread(disc, opts)
         @playing.push(block)
 
-    clearBlock: (name) ->
+    clearThread: (name) ->
         # TODO this is inefficient lookup, should use hash table?
         if not name? then @playing = []
         else 
@@ -164,7 +168,7 @@ class Recorder
 
         return @playing.length
 
-    runBlocks: (crntTime) =>
+    runThreads: (crntTime) =>
         remaining = 0
         remove_ii = []
         for block, ii in @playing by -1
@@ -177,6 +181,7 @@ class Recorder
         if typeof name == 'object' then @registered = name
         else @registered[name] = stream
         
+
 #    groupToData: (flatten) ->
 #        # TODO matchName is passed to match
 #        allData = (@pathToData(obj) for obj in @group.children)
@@ -202,4 +207,4 @@ class Recorder
 #
 #        return data
 
-window.Recorder = Recorder
+window.Stitch = Stitch

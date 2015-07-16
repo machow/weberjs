@@ -45,7 +45,7 @@ functize = (template, copy=true) ->
             getProperty(crnt_template, path, val)
         return crnt_template 
 
-class TrialRunner
+class TrialTimeline
     constructor: (timeline = [], @runFunc) -> 
         @trialTimeline = []
         @chunkIds = {}
@@ -86,7 +86,7 @@ class TrialRunner
         @crnt_chunk = 0
 
 
-class Block
+class Thread
     constructor: (@disc, {@callback, @context, @event, @playEntry}) ->
         #if typeof disc == 'string'
         #    name = disc
@@ -97,6 +97,7 @@ class Block
         @name = ""
         @crnt_ii = 0
         @children = []
+        @active = false
 
         if @disc[0].type is 'metadata' then @parseMetaData(@disc[0])
 
@@ -114,12 +115,18 @@ class Block
             @crnt_ii++
         remaining = @disc.length - @crnt_ii
         if not remaining 
+            # Wait for all children to become inactive before firing callback
             console.log('spent')
-            @callback?()
+            if @activeChildren().length is 0
+                @callback?()
+                @active = false
         return remaining
 
     addChild: (child) ->
         @children.push(child)
+
+    activeChildren: () ->
+        block for block in @children when block.active
 
     end: () ->
         @crnt_ii = @disc.length
@@ -131,5 +138,5 @@ window.runner =
     _getProperty: getProperty,
     _getParams: getParams,
     functize: functize
-    TrialRunner: TrialRunner
-    Block: Block
+    TrialTimeline: TrialTimeline
+    Thread: Thread

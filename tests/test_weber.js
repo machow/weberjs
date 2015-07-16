@@ -60,7 +60,7 @@ create_stream = function(opts){
 var c, web, shapes;
 describe('test weber', function(){
     function short_pause(callback){
-        setTimeout(callback, 150)
+        setTimeout(callback, 55)
     }
 
     function emit_then_pause(name, type, callback) {
@@ -89,15 +89,12 @@ describe('test weber', function(){
         c.style.border = 'solid 1px lightgrey'
         div.appendChild(c);
 
-        web = new Recorder(c);
+        web = new Stitch(c);
         shapes = web.group.children;
-        web.paper.view.onFrame = function(event){
-            web.runBlocks(performance.now());
-        };
     });
 
     it('draws a rectangle immediately', function(done){
-        web.addBlock(create_stream());
+        web.addThread(create_stream());
         short_pause(function(){
             var r = shapes['rect'];
             expect(r).toBeDefined();
@@ -110,7 +107,7 @@ describe('test weber', function(){
         var entry = create_stream();
         delete entry[0].time
 
-        web.addBlock(entry);
+        web.addThread(entry);
         short_pause(function(){
             var r = shapes['rect'];
             expect(r).toBeDefined();
@@ -120,7 +117,7 @@ describe('test weber', function(){
     });
 
     it('responds to events in type: add', function(done){
-        web.addBlock(create_stream(['event']));
+        web.addThread(create_stream(['event']));
         emit_then_pause('rect', 'doubleclick', function(){
             expect(r.strokeWidth).toEqual(5);
             done();
@@ -128,7 +125,7 @@ describe('test weber', function(){
     });
 
     it('responds to events as separate entry', function(done){
-        web.addBlock(create_stream(['eventEntry']));
+        web.addThread(create_stream(['eventEntry']));
         emit_then_pause('rect', 'doubleclick', function(){
             expect(r.strokeWidth).toEqual(5);
             done();
@@ -136,7 +133,7 @@ describe('test weber', function(){
     });
 
     it('uses log in type: add', function(done){
-        web.addBlock(create_stream(['log']));
+        web.addThread(create_stream(['log']));
         short_pause(function(){
             expect(web.logger.crntEntry()).toEqual({'position.x': 25, 'position.y': 25});
             done()
@@ -144,7 +141,7 @@ describe('test weber', function(){
     });
 
     it('uses log as separate entry', function(done){
-        web.addBlock(create_stream(['logEntry']));
+        web.addThread(create_stream(['logEntry']));
         short_pause(function(){
             expect(web.logger.crntEntry()).toEqual({'position.x': 25, 'position.y': 25});
             done()
@@ -152,7 +149,7 @@ describe('test weber', function(){
     });
 
     it('logs strokeWidth change in event', function(done){
-        web.addBlock(create_stream(['logInEvent', 'event']));
+        web.addThread(create_stream(['logInEvent', 'event']));
         emit_then_pause('rect', 'doubleclick', function(){
             expect(web.logger.crntEntry()).toEqual({strokeWidth: 5});
             done();
@@ -163,9 +160,9 @@ describe('test weber', function(){
         entry = create_stream();
         entry.push({
             type: 'removeAll',
-            time: 100
+            time: 25
         });
-        web.addBlock(entry);
+        web.addThread(entry);
         short_pause(function(){
             expect(shapes['rect']).toBeUndefined();
             done()
@@ -189,11 +186,69 @@ describe('test weber', function(){
             },
             time: 100,
         });
-        web.addBlock(entry);
+        web.addThread(entry);
         short_pause(function(){
             expect(shapes['rect']).toBeDefined();
             expect(shapes['rect2']).toBeUndefined();
             done();
+        });
+    });
+
+    it('executes callback once block w/o children finishes', function(done){
+        var circle;
+        web.addThread(create_stream(), { callback: function(){
+            circle = new web.paper.Path.Circle({ center: [25, 25], radius: 25});
+            }
+        });
+
+        short_pause(function(){
+            expect(circle).toBeDefined();
+            done()
+        });
+    });
+
+    it('executes callback once all block children are finished', function(done){
+        entry = create_stream();
+        entry.push({
+            type: 'updateOn',
+            name: 'rect',
+            event: 'doubleclick',
+            options: [{
+                    type: 'add',
+                    item: 'Path',
+                    options: {segments: [[0,0], [100,100]], name: 'pointy'},
+                    time: 100
+                }]
+        });
+
+        var sucess;
+        web.addThread(entry, {callback: function() {success = true;}});
+        var p;
+        emit_then_pause('rect', 'doubleclick', function(){
+            p = shapes['pointy'];
+            expect(p).toBeUndefined();
+            expect(sucess).toBeUndefined();
+            setTimeout(function(){
+                p = shapes['pointy'];
+                expect(p).toBeDefined();  // sign the event has fired
+                expect(success).toBe(true);
+                done();
+            }, 150);
+        });
+    });
+
+    it('runs through simple set of chunks w/TrialRunner', function(done){
+        entry1 = create_stream();
+        entry2 = create_stream();
+        entry2[0].options.name = 'rect2';
+
+        web.TR.add(0, entry1);
+        web.TR.add(1, entry2);
+        web.run();
+        short_pause(function(){
+            expect(shapes['rect']).toBeDefined();
+            expect(shapes['rect2']).toBeDefined();
+            done()
         });
     });
 })

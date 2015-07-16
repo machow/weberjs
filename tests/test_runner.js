@@ -1,7 +1,7 @@
 var getProperty = runner._getProperty,
     getParams = runner._getParams,
     functize = runner.functize,
-    TrialRunner = runner.TrialRunner
+    TrialTimeline = runner.TrialTimeline
 
 describe('test runner', function(){
     //var log, obj
@@ -91,8 +91,8 @@ describe('test runner:TrialRunner', function(){
         trials = [{id: "0", trial: function(){return 'a'}},
                       {id: "1", trial: function(){return 'b'}},
                       {id: "2", trial: function(){return 'c'}}]
-        min_TR = new TrialRunner()
-        full_TR = new TrialRunner(trials, function(chunk){return chunk()});
+        min_TR = new TrialTimeline()
+        full_TR = new TrialTimeline(trials, function(chunk){return chunk()});
     });
     it('adds chunks', function(){
         min_TR.add("0", 'a chunk');
@@ -101,7 +101,7 @@ describe('test runner:TrialRunner', function(){
     });
 
     it('takes a custom run function', function(){
-        var TR = new TrialRunner([], function(chunk){return 'custom ' + chunk});
+        var TR = new TrialTimeline([], function(chunk){return 'custom ' + chunk});
         TR.add("0", 'chunk');
         var result = TR.runCrntChunk();
         expect(result).toEqual('custom chunk');
