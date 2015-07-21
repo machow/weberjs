@@ -17,7 +17,9 @@
   "dependencies": {
     "perfnow-polyfill": "*",
     "paper": "~0.9.22",
-    "tweenjs": "*",
-    "easeljs": "~0.8.1"
+    "tweenjs": "*"
+  },
+  "devDependencies": {
+    "weber-ui": "machow/weber-ui"
   }
 }
