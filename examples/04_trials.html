@@ -65,7 +65,7 @@
   var editor = new JSONEditor(container); 
   editor.set(demoStream)
 
-  var recorder = new Recorder('myCanvas');
+  var recorder = new Stitch('myCanvas');
 
   document.getElementById('run').onclick = function(){
     console.log('running');
@@ -89,8 +89,8 @@
   }
 
   document.getElementById('clear').onclick = function(){
-    console.log('clearBlock')
-    recorder.clearBlock()
+    console.log('clearThread')
+    recorder.clearThread()
   }
 
   //paper.view.onFrame = function(event){

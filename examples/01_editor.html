@@ -92,7 +92,7 @@
 
 
   var container = document.getElementById('jsoneditor')
-  var editor = new JSONEditor(container); 
+  var editor = new JSONEditor(container, {mode: 'code'}); 
   editor.set(demoStream)
 
   canvas = document.getElementById('myCanvas');
