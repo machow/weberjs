@@ -1,0 +1,24 @@
+[
+    type: 'add'
+    item: 'Path.Circle'
+    options:
+        center: [175, 50]
+        radius: 30
+        fillColor: 'blue'
+        name: 'aCircle'
+    time: 500
+    events:
+        mouseclick: [
+            type: 'update',
+            method: 'set',
+            options:
+                fillColor: 'green'
+        ,
+            type: 'update',
+            method: 'set',
+            options:
+                fillColor: 'blue'
+            time: 1000
+        ]
+    duration: 5000
+]
