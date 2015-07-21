@@ -9,5 +9,3 @@ pages:
     - Demos:
         - 'AXCPT task': demos/axcpt.md
         - 'Events bonanza': demos/events.md
-
-extra_css: ['assets/weber-ui/weber-ui.css', 'assets/fix-jsoneditor.css']

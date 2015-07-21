@@ -8,7 +8,7 @@
         name: 'aCircle'
     time: 500
     events:
-        mouseclick: [
+        click: [
             type: 'update',
             method: 'set',
             options:
