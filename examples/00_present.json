@@ -1,1 +1,1 @@
-[{"type":"add","item":"PointText","options":{"point":[150,50],"justification":"center","content":"demo stimuli","strokeColor":"black","name":"instructionsText"},"time":500},{"type":"update","name":"instructionsText","method":"remove","time":1500}]
+{"type":"add","item":"PointText","options":{"point":[150,50],"justification":"center","content":"demo stimuli","strokeColor":"black","name":"instructionsText"},"time":500,"duration":1000}
