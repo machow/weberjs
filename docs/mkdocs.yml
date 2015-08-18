@@ -1,3 +1,4 @@
+theme: 'journal'
 site_name: Weberjs
 pages:
     - Home: 'index.md'
