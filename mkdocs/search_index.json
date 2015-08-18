@@ -1,0 +1,74 @@
+{
+    "docs": [
+        {
+            "location": "/", 
+            "text": "Weberjs\n\n\nCreate simple, readable web experiments.\n\n\nHow it works\n\n\nObjects\n\n\n\n\nObject interactions\n\n\n\n\n\n\nLogging data\n\n\n\n\nCustom parameters", 
+            "title": "Home"
+        }, 
+        {
+            "location": "/#weberjs", 
+            "text": "Create simple, readable web experiments.", 
+            "title": "Weberjs"
+        }, 
+        {
+            "location": "/#how-it-works", 
+            "text": "", 
+            "title": "How it works"
+        }, 
+        {
+            "location": "/#objects", 
+            "text": "", 
+            "title": "Objects"
+        }, 
+        {
+            "location": "/#object-interactions", 
+            "text": "", 
+            "title": "Object interactions"
+        }, 
+        {
+            "location": "/#logging-data", 
+            "text": "", 
+            "title": "Logging data"
+        }, 
+        {
+            "location": "/#custom-parameters", 
+            "text": "", 
+            "title": "Custom parameters"
+        }, 
+        {
+            "location": "/tutorial/tutorial/", 
+            "text": "", 
+            "title": "Tutorial"
+        }, 
+        {
+            "location": "/core/stitch/", 
+            "text": "", 
+            "title": "Stitch"
+        }, 
+        {
+            "location": "/core/trial_timeline/", 
+            "text": "", 
+            "title": "TrialTimeline"
+        }, 
+        {
+            "location": "/core/logger/", 
+            "text": "", 
+            "title": "Logger"
+        }, 
+        {
+            "location": "/demos/axcpt/", 
+            "text": "AXCPT", 
+            "title": "AXCPT task"
+        }, 
+        {
+            "location": "/demos/axcpt/#axcpt", 
+            "text": "", 
+            "title": "AXCPT"
+        }, 
+        {
+            "location": "/demos/events/", 
+            "text": "", 
+            "title": "Events bonanza"
+        }
+    ]
+}

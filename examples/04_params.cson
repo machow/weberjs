@@ -1,0 +1,14 @@
+[
+    type: "add"
+    item: "PointText"
+    options:
+            point: ["{{X}}", "{{Y}}"]
+            justification: "center"
+            content: "{{TEXT}}"
+            strokeColor: "black"
+            name: "instructionsText"
+    time: 500
+,
+    type: "removeAll"
+    time: 2000
+]
