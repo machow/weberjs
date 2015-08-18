@@ -20,6 +20,6 @@
     "tweenjs": "*"
   },
   "devDependencies": {
-    "weber-ui": "machow/weber-ui"
+    "weber-ui": "machow/weber-ui#timeline"
   }
 }

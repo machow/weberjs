@@ -49,7 +49,7 @@ gulp.task 'watch-build', () ->
 gulp.task 'watch-cson', () ->
     gulp.watch(paths.cson, ['cson'])
 
-gulp.task('watch', () ->['watch-cson', 'watch-build'])
+gulp.task 'watch', ['watch-cson', 'watch-build']
 
 gulp.task('default', ['cson', 'build'])
 
