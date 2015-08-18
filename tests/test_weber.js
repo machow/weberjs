@@ -1,3 +1,6 @@
+/* TODO, test new features:
+ *  add, update, updateOn duration argument
+*/
 create_stream = function(opts){
     if (!opts) opts = [];
     var flashOrange = [
@@ -60,7 +63,7 @@ create_stream = function(opts){
 var c, web, shapes;
 describe('test weber', function(){
     function short_pause(callback){
-        setTimeout(callback, 55)
+        setTimeout(callback, 65)
     }
 
     function emit_then_pause(name, type, callback) {
@@ -140,6 +143,24 @@ describe('test weber', function(){
         })
     });
 
+    it('uses log in type: update', function(done){
+        var simple = create_stream();
+        simple.push({
+            type: 'update',
+            name: 'rect',
+            log: ['strokeWidth'],
+            method: 'set',
+            options: {
+                strokeWidth: 5
+            }
+        });
+        web.addThread(simple);
+        short_pause(function(){
+            expect(web.logger.crntEntry()).toEqual({strokeWidth: 5});
+            done();
+        });
+    });
+
     it('uses log as separate entry', function(done){
         web.addThread(create_stream(['logEntry']));
         short_pause(function(){
@@ -169,11 +190,11 @@ describe('test weber', function(){
         });
     });
 
-    it('clearBlock(s) entries', function(done){
+    it('clearThread(s) entries', function(done){
         entry = create_stream();
         entry.push({
-            type: 'clearBlock',
-            time: 50
+            type: 'clearThread',
+            time: 75
         },
         {
             type: 'add',
@@ -237,7 +258,9 @@ describe('test weber', function(){
         });
     });
 
-    it('runs through simple set of chunks w/TrialRunner', function(done){
+    // Weber with TrialTimeline -----------------------------------------------
+    //
+    it('runs through simple set of chunks w/TrialTimeline', function(done){
         entry1 = create_stream();
         entry2 = create_stream();
         entry2[0].options.name = 'rect2';

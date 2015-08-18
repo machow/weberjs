@@ -12,36 +12,38 @@ class Stitch
         # setup new paperscope
         @paper = new paper.PaperScope()
         @paper.setup(canvasId)
+        new @paper.Tool()
         @paper.view.on 'frame', () => @runThreads(performance.now())
 
         @group = new @paper.Group(name:'default')
 
         # Trial Runner
-        @TR = new runner.TrialTimeline([])
+        @TR = @newTimeline()
         for chunk, ii in chunks 
             @TR.add(ii, chunk)
 
-        @TR.runFunc = (chunk) =>
-            done = => @TR.nextChunk() and @TR.runCrntChunk()
-            if typeof chunk is "object"
+
+    run: -> @TR.runCrnt()
+
+    newTimeline: () ->
+        TR = new runner.TrialTimeline([])
+
+        TR.run = (chunk) =>
+            done = => TR.runNext()
+            if chunk instanceof runner.TrialTimeline
+                console.log('running subtimeline')
+                chunk.runCrnt()
+                
+            else if typeof chunk is "object"
                 @addThread(chunk, callback: done)
             else if typeof chunk is "function"
-                chunk(done)
+                chunk(done, @)
 
-    run: -> @TR.runCrntChunk()
+        return TR
 
-   # attachPaperChunk: () =>
-   #     # Drives TrialRunner for stream blocks
-   #     f = () =>
-   #         remaining = @runThread(performance.now())
-   #         if not remaining
-   #             @TR.runCrntChunk()
-   #         else 
-   #             # No more trials, end and remove handler
-   #             @TR.end()
-   #             @paper.view.off('frame', f)
+    makeTrials: (template, args) ->
+        timeline = runner.Templates.makeTrials(template, args, @newTimeline())
 
-   #    @paper.view.on('frame', f)
 
     getProperty: (obj, prop) ->
         # gets nested properties separated by '.'
@@ -51,28 +53,30 @@ class Stitch
 
         return obj
 
-    add: (item, options, events, log) ->
-        if typeof item is 'string'
-            Cls = @getProperty(@paper, item)
-            p_obj = new Cls(options)
-            @history.push {
-                type: 'add'
-                item: item
-                options: options
-                events: events
-                time: Date.now()
-            }
-            @group.addChild(p_obj)
+    add: (item, options, events, log, duration) ->
+        if typeof item is not 'string'
+            throw "item must be the name of a paper object"
 
-            @updateOn(p_obj, events) if events
-            @log(p_obj, log)         if log
+        Cls = @getProperty(@paper, item)
+        p_obj = new Cls(options)
+        @history.push {
+            type: 'add'
+            item: item
+            options: options
+            events: events
+            time: Date.now()
+        }
+        @group.addChild(p_obj)
 
-            return p_obj
-        else throw "item must be the name of a paper object"
+        @updateOn(p_obj, events) if events
+        @log(p_obj, log)         if log
+        @removeAfter(p_obj, duration) if duration
 
+        return p_obj
 
-    update: (name, method, options) ->
+    update: (name, method, options, log, duration) ->
         # look object up by name if necessary
+        console.log(name)
         obj = if typeof name is 'string' then @group.children[name] else name
         
         if not obj
@@ -86,24 +90,38 @@ class Stitch
             options: options
             time: Date.now()
         }
+
+        #@updateOn(obj, events) if events
+        @log(obj, log) if log
+        @removeAfter(obj, duration) if duration
         return tmp
 
-    updateOn: (name, event, options) ->
+    updateOn: (name, event, options, duration) ->
         # copied from update TODO should consolidate?
         # look object up by name if necessary
         obj = if typeof name is 'string' then @group.children[name] else name
-        
-        if not obj
+
+        if not name then obj = @paper.tool
+        else if not obj
             throw "paper object not found, wrong name: " + name + "?"
 
+
         if typeof event is "string"
-            handler = @blockContextWrapper(@events[event](options))
+            handler = @events[event](obj, options, @)
             obj.on(event, handler)
+            
+            if duration 
+                setTimeout ( -> obj.off(event, handler)), duration
+
+            console.log('attaching event handler')
+            #obj.on(event, handler)
         else 
             # event is object with event names as keys
             for key, opts of event
-                handler = @blockContextWrapper(@events[key](opts))
+                handler = @events[key](obj, opts, @)
                 obj.on(key, handler)
+                if duration
+                    setTimeout ( -> obj.off(key, handler)), duration
 
     log: (name, props) ->
         obj = if typeof name is 'string' then @group.children[name] else name
@@ -113,26 +131,33 @@ class Stitch
     logMethod: (method, options) ->
         @logger[method](options)
 
-    blockContextWrapper: (handler) ->
+    threadContextWrapper: (handler) ->
         return (event) =>
             if stream = handler(event) then @addThread(stream, context: event.target)
 
     removeAll: () ->
         @group.removeChildren()
+
+    removeAfter: (obj, time) ->
+        setTimeout ( -> obj.remove()), time
         
 
     playEntry: (entry, context, event) =>
         # Consider switching to hash reference? I'm not sure how js compiles
         # switch statements...
-        entry.name ?= context
+
+        # TODO: modifying thread entries is BAD
+        if context?.name and not entry.name
+            entry.name = context.name
+
         switch entry.type
             when "add"
-                @add(entry.item, entry.options, entry.events, entry.log)
+                @add(entry.item, entry.options, entry.events, entry.log, entry.duration)
             when "update"
                 # TODO this should just be a wrapper, and not contain logic
-                @update(entry.name, entry.method, entry.options)
+                @update(entry.name, entry.method, entry.options, entry.log)
             when "updateOn"
-                @updateOn(entry.name, entry.event, entry.options)
+                @updateOn(entry.name, entry.event, entry.options, entry.duration)
             when "clearThread"
                 @clearThread(entry.name)
             when "removeAll"

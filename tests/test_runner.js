@@ -1,12 +1,19 @@
-var getProperty = runner._getProperty,
-    getParams = runner._getParams,
-    functize = runner.functize,
+var Templates = runner.Templates,
     TrialTimeline = runner.TrialTimeline
 
-describe('test runner', function(){
-    //var log, obj
-    //beforeEach(function(){
-    //});
+describe('test runner:Templates', function(){
+    var getParams = Templates.getParams,
+        functize = Templates.functize,
+        getProperty = Templates.getProperty
+
+    it('converts column-like data to row data', function(){
+        var colData = {a: [1,2], b: [3,4]}; 
+        var rowData = [{a: 1, b: 3}, {a: 2, b: 4}];
+
+        expect(Templates.colsToRows(colData)).toEqual(rowData);
+
+    });
+
     it('parses strings like {{A}}', function(){
         entry = "{{A}}";
         params = getParams(entry);
@@ -67,7 +74,7 @@ describe('test runner', function(){
     // functize
     it("functizes a single argument", function(){
         template = {a1: "{{A1}}"};
-        newTemplate = functize(template)({A1: "new A1 value"});
+        newTemplate = Templates.functize(template)({A1: "new A1 value"});
         expect(newTemplate).toEqual({a1: "new A1 value"});
     });
 
@@ -76,7 +83,7 @@ describe('test runner', function(){
                     b1: ["{{L0}}", 1, "{{L2}}"],
                     c1: {c2: "{{C2}}"}
         }
-        newTemplate = functize(template)({A1: '_A1', L0: '_L0', L2: '_L2', C2: '_C2'});
+        newTemplate = Templates.functize(template)({A1: '_A1', L0: '_L0', L2: '_L2', C2: '_C2'});
         expect(newTemplate).toEqual({
             a1: "_A1",
             b1: ['_L0', 1, '_L2'],
@@ -103,13 +110,13 @@ describe('test runner:TrialRunner', function(){
     it('takes a custom run function', function(){
         var TR = new TrialTimeline([], function(chunk){return 'custom ' + chunk});
         TR.add("0", 'chunk');
-        var result = TR.runCrntChunk();
+        var result = TR.runCrnt();
         expect(result).toEqual('custom chunk');
     });
 
     it('can nextChunk then runCrntChunk', function(){
         full_TR.nextChunk();
-        var result = full_TR.runCrntChunk();
+        var result = full_TR.runCrnt();
         expect(result).toEqual('b');
     });
 
@@ -117,7 +124,29 @@ describe('test runner:TrialRunner', function(){
         var chunk2 = full_TR.goToChunk("2");
         expect(chunk2).toEqual(Number(trials[2].id));
 
-        var result = full_TR.runCrntChunk();
+        var result = full_TR.runCrnt();
         expect(result).toEqual('c');
-    })
+    });
+
+    it('runs end callback', function(){
+        var done = false;
+
+        full_TR.end = function(){
+            done = true
+        };
+        full_TR.runCrnt()
+        for (var ii = 0; ii < 10; ii++){
+            full_TR.runNext();
+            if (done) break
+        }
+        expect(ii).toEqual(2);  // 3 chunks in full_TR
+    });
+
+    it('can makeTrials from template and pars', function(){
+    });
+});
+
+describe('test ', function(){
+    it('can goToChunk', function(){
+    });
 });
