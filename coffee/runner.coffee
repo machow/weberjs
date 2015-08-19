@@ -160,6 +160,7 @@ class Thread
         @children = []
         @active = false
 
+        @disc = [@disc] if not Array.isArray(@disc)
         if @disc[0].type is 'metadata' then @parseMetaData(@disc[0])
 
         # parse options
