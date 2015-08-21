@@ -93,7 +93,7 @@ describe('test weber', function(){
         div.appendChild(c);
 
         web = new Stitch(c);
-        shapes = web.group.children;
+        shapes = web.plugin.paper.group.children;
     });
 
     it('draws a rectangle immediately', function(done){
@@ -194,7 +194,8 @@ describe('test weber', function(){
         entry = create_stream();
         entry.push({
             type: 'clearThread',
-            time: 75
+            name: "", // thread's default name
+            time: 0
         },
         {
             type: 'add',
@@ -205,7 +206,7 @@ describe('test weber', function(){
                 strokeColor: 'blue',
                 name: 'rect2'
             },
-            time: 100,
+            time: 0,
         });
         web.addThread(entry);
         short_pause(function(){
@@ -218,7 +219,8 @@ describe('test weber', function(){
     it('executes callback once block w/o children finishes', function(done){
         var circle;
         web.addThread(create_stream(), { callback: function(){
-            circle = new web.paper.Path.Circle({ center: [25, 25], radius: 25});
+            paper = web.plugin.paper.paper
+            circle = new paper.Path.Circle({ center: [25, 25], radius: 25});
             }
         });
 

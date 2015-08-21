@@ -11,7 +11,7 @@ es = require 'event-stream'
 del = require 'del'
 
 paths = 
-    scripts: ['./coffee/*.coffee']
+    scripts: ['./coffee/**/*.coffee']
     images: 'img/*'
     tests: 'tests/*'
     cson: ['docs/docs/examples/*.cson']
