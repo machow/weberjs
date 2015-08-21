@@ -44,7 +44,7 @@ onKeyDown = (obj, opts, stitch) ->
                     console.log("removing #{event.type}")
                     obj.off(event.type, handler)
                 new_thread = compile(thread, event)
-                return stitch.addThread(new_thread, context: event.target, event: event)
+                return stitch.addThread(new_thread, context: event)
         return null
 
 
@@ -54,7 +54,7 @@ onDefault = (obj, opts, stitch) ->
         console.log 'calling default event'
         if Array.isArray(opts)
             new_thread = compile(opts, event)
-            return stitch.addThread(new_thread, context: event.target, event: event)
+            return stitch.addThread(new_thread, context: event)
         else return opts()
 
 
@@ -113,10 +113,11 @@ class paperPlugin
 
         return p_obj
 
-    update: ({name, method, options, events, log, duration}) ->
+    update: ({name, method, options, events, log, duration}, context) ->
         # look object up by name if necessary
-        console.log(name)
-        obj = if typeof name is 'string' then @group.children[name] else name
+        if not name
+            obj = context.target
+        else if typeof name is 'string' then obj = @group.children[name]
         
         if not obj
             throw "paper object not found, wrong name: " + name + "?"
@@ -135,9 +136,10 @@ class paperPlugin
         @removeAfter(obj, duration) if duration
         return tmp
 
-    updateOn: ({name, event, options, duration}) ->
+    updateOn: ({name, event, options, duration}, ctxt) ->
         # copied from update TODO should consolidate?
         # look object up by name if necessary
+        
         obj = if typeof name is 'string' then @group.children[name] else name
 
         if not name then obj = @paper.tool
@@ -162,8 +164,10 @@ class paperPlugin
                 if duration
                     setTimeout ( -> obj.off(key, handler)), duration
 
-    log: ({name, props}) ->
-        obj = if typeof name is 'string' then @group.children[name] else name
+    log: ({name, props}, context) ->
+        if not name then obj = context.target
+        else if typeof name is 'string' then obj = @group.children[name]
+        else obj = name
         
         @stitch.logger.log(obj, props)
 

@@ -47,17 +47,15 @@ class Stitch
 
 
 
-    playEntry: (entry, context, event) =>
+    playEntry: (entry, context) =>
         # Consider switching to hash reference? I'm not sure how js compiles
         # switch statements...
 
         # TODO: modifying thread entries is BAD
-        if context?.name and not entry.name
-            entry.name = context.name
 
         if not @method.hasOwnProperty(entry.type)
             throw "stitch has no method of type: #{entry.type}"
-        else @method[entry.type](entry)
+        else @method[entry.type](entry, context, @)
 
     addThread: (disc, opts = {}) ->
         if typeof disc is "string"

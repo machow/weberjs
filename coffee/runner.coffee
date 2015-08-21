@@ -148,7 +148,7 @@ class TrialTimeline
 
 
 class Thread
-    constructor: (@disc, {@callback, @context, @event, @playEntry}) ->
+    constructor: (@disc, {@callback, @context, @playEntry}) ->
         #if typeof disc == 'string'
         #    name = disc
         #    disc = @registered[name]
@@ -173,7 +173,7 @@ class Thread
         while (entry = @disc[@crnt_ii]) and 
               (entry.time is undefined or entry.time + @startTime < crntTime)
             console.log(entry)
-            @playEntry(entry, @context, @event)
+            @playEntry(entry, @context)
             @crnt_ii++
         remaining = @disc.length - @crnt_ii
         if not remaining 
