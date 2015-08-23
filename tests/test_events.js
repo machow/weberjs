@@ -1,5 +1,5 @@
 
-describe('test events', function(){
+describe('paperPlugin events', function(){
     it('compiles a single attribute (e.g. {x: "@x"})', function(){
         expect(events.compile({a: '@x'}, {x: 2})).toEqual({a: 2});
     });

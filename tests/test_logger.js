@@ -1,6 +1,6 @@
 // <reference path="../js/weber.js" />
 
-describe('test logger', function(){
+describe('logger', function(){
     var log, obj
     beforeEach(function(){
         log = new Logger()

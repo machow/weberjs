@@ -61,7 +61,7 @@ create_stream = function(opts){
 }
 
 var c, web, shapes;
-describe('test weber', function(){
+describe('stitch paperPlugin', function(){
     function short_pause(callback){
         setTimeout(callback, 65)
     }
@@ -277,3 +277,44 @@ describe('test weber', function(){
         });
     });
 })
+
+
+// Test Plugins ---------------------------------------------------------------
+describe('stitch core', function(){
+
+    beforeAll(function(){
+        div = document.createElement('div');
+        div.style.visibility = 'hidden'
+        document.body.appendChild(div);
+    });
+
+    beforeEach(function(){
+        c = document.createElement('canvas');
+        c.setAttribute('keep-alive', 1);
+        c.style.width = '50px';
+        c.style.height = '50px';
+        c.style.margin = "25px";
+        c.style.padding = "5px";
+        c.style.border = 'solid 1px lightgrey'
+        div.appendChild(c);
+
+        web = new Stitch(c, {}, []);
+        //shapes = web.plugin.paper.group.children;
+    });
+
+    it('loadPlugin(s) object', function(){
+    });
+
+    it('loadPlugin(s) function', function(){
+    });
+
+    it('runs function using a thread', function(){
+    });
+
+    it('creates a timeline with single block', function(){
+    });
+
+    it('clearThread(s)', function(){
+    });
+
+});

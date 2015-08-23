@@ -1,7 +1,7 @@
 var Templates = runner.Templates,
     TrialTimeline = runner.TrialTimeline
 
-describe('test runner:Templates', function(){
+describe('runner:Templates', function(){
     var getParams = Templates.getParams,
         functize = Templates.functize,
         getProperty = Templates.getProperty
@@ -92,7 +92,7 @@ describe('test runner:Templates', function(){
     });
 });
 
-describe('test runner:TrialRunner', function(){
+describe('runner:TrialRunner', function(){
     var TR, min_TR
     beforeEach(function(){
         trials = [{id: "0", trial: function(){return 'a'}},
@@ -146,7 +146,7 @@ describe('test runner:TrialRunner', function(){
     });
 });
 
-describe('test ', function(){
+describe('runner: Thread', function(){
     it('can goToChunk', function(){
     });
 });
