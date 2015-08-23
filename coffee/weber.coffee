@@ -92,7 +92,9 @@ class Stitch
     loadPlugin: (plugin) ->
         switch (typeof plugin)
             when 'function' then plugin(@)
-            # when 'object'
+            when 'object'
+                for own k, f of plugin
+                    @method[k] = f if not @method.hasOwnProperty(k)
 
 #    groupToData: (flatten) ->
 #        # TODO matchName is passed to match
