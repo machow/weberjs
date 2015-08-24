@@ -198,7 +198,7 @@ class TrialTimeline
 
 
 class Thread
-    constructor: (@disc, {@callback, @context, @playEntry}) ->
+    constructor: (@disc, {@callback, @context, playEntry} = {}) ->
         #if typeof disc == 'string'
         #    name = disc
         #    disc = @registered[name]
@@ -217,6 +217,7 @@ class Thread
 
         @startTime = performance.now()
 
+        @playEntry = playEntry if playEntry
         # function for calling class instance directly
         #return => @run
 
@@ -237,6 +238,9 @@ class Thread
                 @active = false
         return remaining
 
+    playEntry: () ->
+        throw "must define playEntry"
+        
     addChild: (child) ->
         @children.push(child)
 
