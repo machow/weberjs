@@ -1,3 +1,4 @@
+# requires TrialTimeline, can change when create the BlockTemplate class
 Templates = 
     colsToRows: (obj) ->
         # converts object with columns of data to row-like entries
@@ -80,10 +81,10 @@ Templates =
 
 class TrialTimeline
     constructor: (timeline = [], @run) -> 
-        @trialTimeline = []
-        @chunkIds = {}
-        @active = false
-        @crnt_chunk = 0
+        @trialTimeline = []      # timeline chunks
+        @chunkIds = {}           # maps id -> chunk index
+        @active = false          # is active once a chunk is run
+        @crnt_chunk = 0          # indexes current chunk
 
         @add(entry.id, entry.trial) for entry in timeline
 
@@ -94,12 +95,28 @@ class TrialTimeline
         chunk = id: id, trial: trial
         @trialTimeline.push(chunk)
 
+    # TODO rename to something less enticing
+    run: (rawChunk) ->
+        # default running function, likely should be overloaded
+        rawChunk()
+
+    end: () ->
+        # default end function, should be overloaded
+        return null
+
+    reset: () ->
+        @trialTimeline = []
+        @chunkIds = {}
+        @crnt_chunk = 0
+
     makeIdRoot: (id) ->
+        # takes some id string, returns unique id by giving
         unique = (id) =>
             re = new RegExp(id)
             
             # keys method not ie8 compatible..
-            (Object.keys(@chunkIds).length == 0) or (re.test(k) for own k of @chunkIds).some((ii) -> ii)
+            # @chunkIds is empty or has entry named id
+            Object.keys(@chunkIds).length == 0 or (re.test(k) for own k of @chunkIds).some((ii) -> ii)
 
         if not unique(id)
             incr = 0
@@ -108,6 +125,7 @@ class TrialTimeline
         else 
             return id
 
+    # methods to run and advance chunks ---------------------------------------
     nextChunk: () ->
         @crnt_chunk++
         if @crnt_chunk < @trialTimeline.length then @trialTimeline[@crnt_chunk]
@@ -133,18 +151,50 @@ class TrialTimeline
         @crnt_chunk = 0
         @runCrnt()
 
-    run: (rawChunk) ->
-        # default running function, likely should be overloaded
-        rawChunk()
+    # JSON serialization ------------------------------------------------------
+    # could split into its own class (TimelineParser) and/or moved to Stitch or weber
+    # TODO clear structure for parsers/serializers all the way down
+    _parseFunction: (funcstring) ->
+        # takes 
+        funcReg = /function *\(([^()]*)\)[ \n\t]*{(.*)}/gmi
+        [_, args, body] = funcReg.exec(funcstring)
+        return new Function(args, body)
 
-    end: () ->
-        # default end function, should be overloaded
-        return null
+    _parseChunk: (chunk) ->
+        switch (chunk.entry)
+            when 'thread'
+                chunk.entry = Thread(chunk.entry)
+            when 'function'
+                chunk.entry = @_parseFunction(chunk.entry)
+            when 'timeline'
+                chunk.entry = @fromJSON(chunk.entry)
 
-    reset: () ->
-        @trialTimeline = []
-        @chunkIds = {}
-        @crnt_chunk = 0
+    fromJSON: (json) ->
+        # convert json to timeline object
+
+        json = JSON.parse(json) if typeof json is "string"
+
+        # timeline attribute is a list of chunk objects with properties
+        #   id:     unique string identifier
+        #   entry:  actual content of chunk
+        #   type:   type of content (function, timeline, or thread)
+        
+        for chunk in json.timeline
+            @_parseChunk(chunk)
+
+
+    toJSON: () ->
+        timeline = []
+        for chunk in @trialTimeline 
+            to_store = type: chunk.type, id: chunk.id
+            a = 1
+            to_store.entry = switch (chunk.type)
+                when 'thread'   then chunk.entry.toJSON()
+                when 'function' then chunk.entry.toString()
+                when 'timeline' then chunk.entry.toJSON()
+            timeline.push(to_store)
+
+        return timeline: timeline
 
 
 class Thread
@@ -158,20 +208,23 @@ class Thread
         @name = ""
         @crnt_ii = 0
         @children = []
-        @active = false
+        @active = true
 
         @disc = [@disc] if not Array.isArray(@disc)
-        if @disc[0].type is 'metadata' then @parseMetaData(@disc[0])
+        if @disc[0]?.type is 'metadata' then @parseMetaData(@disc[0])
 
         # parse options
 
         @startTime = performance.now()
 
+        # function for calling class instance directly
+        #return => @run
+
     parseMetaData: ({@name}) ->
 
     run: (crntTime) ->
         while (entry = @disc[@crnt_ii]) and 
-              (entry.time is undefined or entry.time + @startTime < crntTime)
+              (entry.time is undefined or entry.time + @startTime <= crntTime)
             console.log(entry)
             @playEntry(entry, @context)
             @crnt_ii++
@@ -192,6 +245,9 @@ class Thread
 
     end: () ->
         @crnt_ii = @disc.length
+
+    toJSON: () ->
+        return @disc 
     
 
 window.runner = 

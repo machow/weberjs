@@ -92,7 +92,7 @@ describe('runner:Templates', function(){
     });
 });
 
-describe('runner:TrialRunner', function(){
+describe('runner:TrialTimeline', function(){
     var TR, min_TR
     beforeEach(function(){
         trials = [{id: "0", trial: function(){return 'a'}},
@@ -101,6 +101,10 @@ describe('runner:TrialRunner', function(){
         min_TR = new TrialTimeline()
         full_TR = new TrialTimeline(trials, function(chunk){return chunk()});
     });
+
+    it('instance can start running by calling it directly', function(){
+    });
+
     it('adds chunks', function(){
         min_TR.add("0", 'a chunk');
         min_TR.add("1", 'another');
@@ -147,6 +151,101 @@ describe('runner:TrialRunner', function(){
 });
 
 describe('runner: Thread', function(){
-    it('can goToChunk', function(){
+    var Thread = runner.Thread,
+        thread,
+        result,
+        child
+
+    // Thread takes timing events relative to the time of its creation,
+    // but expects performance.now() to be passed to thread.run. Since we 
+    // just want to have it run, say, a time: 1000ms, we mock performance.now
+    // to return 0
+    //MockThread.prototype = Object.create(runner.Thread.prototype)
+
+    beforeEach(function(){
+        result = []
+        thread = new Thread([], {
+            playEntry: function(entry) {result.push(entry.time)}
+        });
+        thread.startTime = 0;
+        child = new Thread([], {
+            playEntry: function(entry) {result.push(entry.time)}
+        });
+        child.startTime = 0;
+    });
+
+    it('instance can be called directly', function(){
+    });
+
+    it('loops over entries sequentially', function(){
+        thread.disc = [{time: 0}, {time: 1000}];
+        thread.run(100);
+        expect(result).toEqual([0]);
+        thread.run(1000);
+        expect(result).toEqual([0, 1000]);
+    });
+
+    it("will run item later if it's at back of sequence", function(){
+        thread.disc = [{time: 1000}, {time: 0}];
+        thread.run(100);
+        expect(result).toEqual([]);
+        thread.run(10000);
+        expect(result).toEqual([1000, 0]);
+    });
+
+    it("moves forward through entries, no going back", function(){
+    });
+
+    it("can take a single entry as object, instead of array", function(){
+    });
+
+    it("end() moves entry index, but does not call remaining entries", function(){
+    });
+
+    it('goes inactive when finishes entries and no children', function(){
+        thread.disc = [{time: 0}];
+        expect(thread.active).toBe(true);
+        expect(thread.activeChildren()).toEqual([]);
+        thread.run(100);
+        expect(thread.active).toBe(false);
+    });
+
+    it('has child but runs only itself', function(){
+        thread.disc = [{time: 0}];
+        child.disc = [{time: 100}];
+        thread.addChild(child);
+        thread.run(1000);
+        expect(result).toEqual([0]);
+    });
+
+    it('has child and reports activeChildren', function(){
+        thread.disc = [{time: 0}];
+        thread.callback = function(){ result.push('done')}
+        child.disc = [{time: 100}];
+        thread.addChild(child);
+        // run parent
+        thread.run(100);
+        expect(thread.activeChildren().length).toBe(1);
+        expect(result).toEqual([0]);
+        // run child
+        child.run(100);
+        expect(child.active).toBe(false);
+        expect(result).toEqual([0, 100]);
+        // callback for parent fires when it is run again
+        thread.run(100); // any time should be fine
+        expect(result).toEqual([0, 100, 'done']);
+    });
+
+    it('passes context argument to the run function', function(){
+        thread.context = 1;
+        thread.disc = [{time: 1000, val: 1}];
+        thread.playEntry = function(entry, context) {
+            result.push(entry.val + context)
+        };
+        thread.run(1000);
+        expect(result).toEqual([2]);
+    });
+
+    it('converts toJSON', function(){
     });
 });
