@@ -177,6 +177,17 @@ describe('stitch paperPlugin', function(){
         });
     });
 
+    it('can log.update', function(){
+        web.playEntry({
+            type: 'logMethod',
+            method: 'update',
+            options: {
+                a: 1
+            }
+        });
+        expect(web.logger.crntEntry()).toEqual({a: 1});
+    });
+
     it('removeAll entries', function(done){
         entry = create_stream();
         entry.push({

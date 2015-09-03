@@ -68,6 +68,6 @@ describe('logger', function(){
         entry = log.crntEntry()
         expect(entry['a']).toBe(1); // updated
         expect(entry['d']).toBe(3); // updated
-        extect(entry['c']).toBe(obj['c']); // c is left unchanged
+        expect(entry['c']).toBe(obj['c']); // c is left unchanged
     });
 })

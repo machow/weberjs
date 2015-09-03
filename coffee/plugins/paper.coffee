@@ -38,13 +38,15 @@ onKeyDown = (obj, opts, stitch) ->
         console.log('key down')
         # key presses are specified as keyname : thread in opts
         # other options may be specified in there, such as singleUse
-        for own pressed, thread of opts
-            if event.key == pressed
-                if opts.singleUse
-                    console.log("removing #{event.type}")
-                    obj.off(event.type, handler)
-                new_thread = compile(thread, event)
-                return stitch.addThread(new_thread, context: event)
+        if opts[event.key]
+            thread = opts[event.key]
+            if opts.singleUse
+                console.log("removing #{event.type}")
+                obj.off(event.type, handler)
+            new_thread = compile(thread, event)
+            return stitch.addThread(new_thread, context: event)
+        else if opts['log']
+            stitch.logger.log(event, opts['log'])
         return null
 
 
