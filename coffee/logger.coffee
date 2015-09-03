@@ -11,15 +11,17 @@ class Logger
     constructor: (@data = [{}], @crnt_ii = 0) ->
         @hash = 
             '#time': -> performance.now()
+
+    nextEntry: () ->
+        @data.push({})
+        @crnt_ii++
     
+    crntEntry: () ->
+        @data[@crnt_ii]
+
+    # Basic logging from properties -------------------------------------------
     log: (obj, properties) ->
         @createEntry(obj, properties, @data[@crnt_ii])
-
-    update: (records) ->
-        entry = @data[@crnt_ii]
-        entry[k] = v for own k, v of records
-
-        return entry
 
     createEntry: (obj, properties, entry = {}) ->
         if not Array.isArray(properties)
@@ -32,16 +34,28 @@ class Logger
         return entry
 
     parse: (obj, prop) ->
+        # cast to string if necessary, e.g. if want to log index of array
+        prop = String(prop) if typeof prop is "number"
         # special treatment of strings starting with hash
         if prop.startsWith('#') then @hash[prop]()
         # look up property from object
         else getProperty(obj, prop)
 
-    nextEntry: () ->
-        @data.push({})
-        @crnt_ii++
-    
-    crntEntry: () ->
-        @data[@crnt_ii]
+    # Other forms of logging --------------------------------------------------
+    update: (records) ->
+        # extend current log entry from key: value pairs in records
+        entry = @data[@crnt_ii]
+        entry[k] = v for own k, v of records
+
+        return entry
+
+    fromSelector: (selector, properties) ->
+        # get object from selector, then log properties
+        # TODO: allow replacing document with another element?
+        obj = document.querySelector(selector)
+        @log(obj, properties)
+
+
+
 
 window.Logger = Logger
