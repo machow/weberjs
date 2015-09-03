@@ -1,7 +1,6 @@
 class Stitch
-    constructor: (@canvasId, chunks = {}, pluginsToLoad = [window.paperPlugin]) ->
+    constructor: (@canvasId, pluginsToLoad = [window.paperPlugin]) ->
         @history = []
-        @registered = {}    # stored event streams
         @playing = []       # threads being played
         @plugin = {}
         @method = {}
@@ -15,32 +14,27 @@ class Stitch
 
         # modules
         @logger = new Logger()
-        @runner = window.runner #TODO just get TrialRunner and Thread
-        
 
-        # Trial Runner
-        @TR = @newTimeline()
-        for chunk, ii in chunks 
-            @TR.add(ii, chunk)
-
+        @_attachRunners()
 
     run: -> @TR.runCrnt()
 
-    newTimeline: () ->
-        TR = new runner.TrialTimeline([])
+    #newTimeline: () ->
+    #    TR = new @TrialTimeline([])
 
-        TR.run = (chunk) =>
-            done = => TR.runNext()
-            if chunk instanceof runner.TrialTimeline
-                console.log('running subtimeline')
-                chunk.runCrnt()
-                
-            else if typeof chunk is "object"
-                @addThread(chunk, callback: done)
-            else if typeof chunk is "function"
-                chunk(done, @)
 
-        return TR
+    #    TR.run = (chunk) =>
+    #        done = => TR.runNext()
+    #        if chunk instanceof @TrialTimeline
+    #            console.log('running subtimeline')
+    #            chunk.runCrnt()
+    #            
+    #        else if typeof chunk is "object"
+    #            @addThread(chunk, callback: done)
+    #        else if typeof chunk is "function"
+    #            chunk(done, @)
+
+    #    return TR
 
     makeTrials: (template, args) ->
         timeline = runner.Templates.makeTrials(template, args, @newTimeline())
@@ -58,10 +52,7 @@ class Stitch
         else @method[entry.type](entry, context, @)
 
     addThread: (disc, opts = {}) ->
-        if typeof disc is "string"
-            disc = @registered[disc]
-        opts.playEntry = @playEntry
-        block = new runner.Thread(disc, opts)
+        block = new @Thread(disc, opts)
         @playing.push(block)
 
     clearThread: ({name}) ->
@@ -95,6 +86,36 @@ class Stitch
             when 'object'
                 for own k, f of plugin
                     @method[k] = f if not @method.hasOwnProperty(k)
+
+    _attachRunners: () ->
+        # attach TrialTimeline
+        class @TrialTimeline extends runner.TrialTimeline
+
+        stitch = @
+        @TrialTimeline.prototype.run = (chunk) ->
+            done = => @.runNext()
+            if chunk instanceof stitch.TrialTimeline
+                console.log('running subtimeline')
+                chunk.runCrnt()
+            else if typeof chunk is "object"
+                stitch.addThread(chunk, callback: done)
+            else if typeof chunk is "function"
+                chunk(done, stitch)
+
+        @TrialTimeline.prototype.factory = @TrialTimeline
+
+        # attach Thread
+        class @Thread extends runner.Thread
+            playEntry: stitch.playEntry
+
+
+        # Trial Runner
+        @TR = new @TrialTimeline()
+        #for chunk, ii in chunks 
+        #    @TR.add(ii, chunk)
+
+
+
 
 #    groupToData: (flatten) ->
 #        # TODO matchName is passed to match

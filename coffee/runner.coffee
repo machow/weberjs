@@ -80,25 +80,27 @@ Templates =
 
 
 class TrialTimeline
-    constructor: (timeline = [], @run) -> 
+    constructor: (timeline = [], run) -> 
         @trialTimeline = []      # timeline chunks
         @chunkIds = {}           # maps id -> chunk index
         @active = false          # is active once a chunk is run
         @crnt_chunk = 0          # indexes current chunk
 
-        @add(entry.id, entry.trial) for entry in timeline
+        @run = run if run
+        @add(entry.id, entry.trial, entry.type) for entry in timeline
 
-    add: (id="", trial) ->
+    add: (id="", trial, type) ->
         if id of @chunkIds then throw "id already in use"
         else @chunkIds[id] = @trialTimeline.length
 
-        chunk = id: id, trial: trial
+        chunk = id: id, trial: trial, type: type
         @trialTimeline.push(chunk)
 
     # TODO rename to something less enticing
     run: (rawChunk) ->
         # default running function, likely should be overloaded
-        rawChunk()
+        if typeof rawChunk is "function" then rawChunk(@)
+        else rawChunk.start(@)
 
     end: () ->
         # default end function, should be overloaded
@@ -147,7 +149,10 @@ class TrialTimeline
         chunk = @trialTimeline[@crnt_chunk]
         if chunk then @run(chunk.trial) else @end()
 
-    runFirst: () ->
+    start: (TR) ->
+        # if passed TR, then this is a subtimeline
+        # and should continue parent timeline when finished
+        if TR then @end = () -> TR.runNext()   
         @crnt_chunk = 0
         @runCrnt()
 
@@ -163,7 +168,8 @@ class TrialTimeline
     _parseChunk: (chunk) ->
         switch (chunk.entry)
             when 'thread'
-                chunk.entry = Thread(chunk.entry)
+                # TODO, thread is currently put in timeline as object
+                chunk.entry = chunk.entry#Thread(chunk.entry)
             when 'function'
                 chunk.entry = @_parseFunction(chunk.entry)
             when 'timeline'
@@ -179,8 +185,8 @@ class TrialTimeline
         #   entry:  actual content of chunk
         #   type:   type of content (function, timeline, or thread)
         
-        for chunk in json.timeline
-            @_parseChunk(chunk)
+        return new TrialTimeline(@_parseChunk(chunk) for chunk in json.timeline)
+            
 
 
     toJSON: () ->
@@ -189,7 +195,8 @@ class TrialTimeline
             to_store = type: chunk.type, id: chunk.id
             a = 1
             to_store.entry = switch (chunk.type)
-                when 'thread'   then chunk.entry.toJSON()
+                # TODO: thread is currently object in timeline
+                when 'thread'   then chunk.entry #chunk.entry.toJSON()
                 when 'function' then chunk.entry.toString()
                 when 'timeline' then chunk.entry.toJSON()
             timeline.push(to_store)
@@ -252,6 +259,10 @@ class Thread
 
     toJSON: () ->
         return @disc 
+
+    fromJSON: (disc) ->
+        return Thread(disc)
+
     
 
 window.runner = 

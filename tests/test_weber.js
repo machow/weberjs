@@ -302,6 +302,18 @@ describe('stitch core', function(){
         //shapes = web.plugin.paper.group.children;
     });
 
+    it('attached Thread runs basic sequence', function(){
+    });
+
+    it('attached Thread fromJSON(s) correctly', function(){
+    });
+
+    it('attached Timeline runs basic sequence', function(){
+    });
+
+    it('attached Timeline fromJSON(s) correctly', function(){
+    });
+
     it('loadPlugin(s) object', function(){
     });
 

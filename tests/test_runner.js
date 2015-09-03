@@ -93,43 +93,70 @@ describe('runner:Templates', function(){
 });
 
 describe('runner:TrialTimeline', function(){
-    var TR, min_TR
+    var TR, min_TR, record, pushOnly, history
+
+    // push to history, then advance TR
+    record = function(val) {
+        return function(TR){
+            history.push(val);
+            TR.runNext();
+        };
+    };
+
+    // push to history only
+    pushOnly = function(val) {
+        return function() { history.push(val)}
+    };
+
     beforeEach(function(){
-        trials = [{id: "0", trial: function(){return 'a'}},
-                      {id: "1", trial: function(){return 'b'}},
-                      {id: "2", trial: function(){return 'c'}}]
-        min_TR = new TrialTimeline()
-        full_TR = new TrialTimeline(trials, function(chunk){return chunk()});
+        min_TR = new TrialTimeline();
+
+        // full_TR doesn't automatically advance after running a chunk
+        // but is for testing moving around a timeline
+        full_TR = new TrialTimeline([
+            {id: "0", trial: pushOnly('a')},
+            {id: "1", trial: pushOnly('b')},
+            {id: "2", trial: pushOnly('c')}
+        ]);
+
+        history = [];
+
     });
 
-    it('instance can start running by calling it directly', function(){
+    it('starts from start method', function(){
+        min_TR.add(0, record(0)); min_TR.add(1, record(1));
+        min_TR.start();
+        expect(history).toEqual([0,1]);
+
     });
 
     it('adds chunks', function(){
         min_TR.add("0", 'a chunk');
-        min_TR.add("1", 'another');
-        expect(min_TR.trialTimeline).toEqual([{id: "0", trial: 'a chunk'}, {id: "1", trial: 'another'}]);
+        min_TR.add("1", 'another', 'atype');
+        expect(min_TR.trialTimeline).toEqual([
+            {id: "0", trial: 'a chunk', type: undefined}, 
+            {id: "1", trial: 'another', type: 'atype'}
+        ]);
     });
 
     it('takes a custom run function', function(){
-        var TR = new TrialTimeline([], function(chunk){return 'custom ' + chunk});
+        var TR = new TrialTimeline([], function(chunk){history.push('custom ' + chunk)});
         TR.add("0", 'chunk');
-        var result = TR.runCrnt();
-        expect(result).toEqual('custom chunk');
+        TR.runCrnt()
+        expect(history).toEqual(['custom chunk']);
     });
 
     it('can nextChunk then runCrntChunk', function(){
         full_TR.nextChunk();
-        var result = full_TR.runCrnt();
-        expect(result).toEqual('b');
+        full_TR.runCrnt()
+        expect(history).toEqual(['b']);
     });
 
     it('can goToChunk', function(){
         var chunk2 = full_TR.goToChunk("2");
-        expect(chunk2).toEqual(Number(trials[2].id));
 
-        var result = full_TR.runCrnt();
-        expect(result).toEqual('c');
+        full_TR.runCrnt();
+        expect(history).toEqual(['c']);
     });
 
     it('runs end callback', function(){
@@ -144,6 +171,58 @@ describe('runner:TrialTimeline', function(){
             if (done) break
         }
         expect(ii).toEqual(2);  // 3 chunks in full_TR
+    });
+
+    it('has a function block that restarts it several times', function(){
+        var count = 0;
+        min_TR.add(0, record(0));
+        min_TR.add(1, function(TR){
+            if (count++ < 2) TR.runChunk('0');
+            else TR.runNext();
+        });
+        min_TR.start()
+        expect(history).toEqual([0,0, 0]);
+    });
+
+    it('runs a subTimeline', function(){
+        var sub_TR = new TrialTimeline();
+        min_TR.add(0, record('min_TR0'));
+        min_TR.add(1, sub_TR);
+        sub_TR.add(0, record('sub_TR0'));
+        min_TR.add(2, record('min_TR1'));
+        min_TR.start()
+        expect(history).toEqual(['min_TR0', 'sub_TR0', 'min_TR1']);
+    });
+
+
+    it('runs an object with start method', function(){
+        obj = {
+            start: function(TR){
+                history.push(this.count);
+                this.count++;
+                TR.runNext();
+            },
+            count: 0
+        };
+        min_TR.add(0, obj);
+        min_TR.add(1, obj);
+        min_TR.start();
+        expect(history).toEqual([0, 1]);
+    });
+
+    it('fromJSON(s) a timeline containing functions', function(){
+        obj = full_TR.toJSON();
+
+
+    });
+
+    it('fromJSON(s) a timeline containing a thread', function(){
+    });
+
+    it('fromJSON(s) a timeline containing another timeline', function(){
+    });
+
+    it('fromJSON(s) a timeline with a new type of object (w/custom parser)', function(){
     });
 
     it('can makeTrials from template and pars', function(){
@@ -174,7 +253,7 @@ describe('runner: Thread', function(){
         child.startTime = 0;
     });
 
-    it('instance can be called directly', function(){
+    it('starts from start method', function(){
     });
 
     it('loops over entries sequentially', function(){
@@ -247,5 +326,8 @@ describe('runner: Thread', function(){
     });
 
     it('converts toJSON', function(){
+    });
+
+    it('parses fromJSON', function(){
     });
 });
