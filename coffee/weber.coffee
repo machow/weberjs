@@ -41,7 +41,7 @@ class Stitch
 
 
 
-    playEntry: (entry, context) =>
+    playEntry: (entry, thread) =>
         # Consider switching to hash reference? I'm not sure how js compiles
         # switch statements...
 
@@ -49,7 +49,7 @@ class Stitch
 
         if not @method.hasOwnProperty(entry.type)
             throw "stitch has no method of type: #{entry.type}"
-        else @method[entry.type](entry, context, @)
+        else @method[entry.type](entry, thread, @)
 
     addThread: (disc, opts = {}) ->
         block = new @Thread(disc, opts)

@@ -234,7 +234,7 @@ class Thread
         while (entry = @disc[@crnt_ii]) and 
               (entry.time is undefined or entry.time + @startTime <= crntTime)
             console.log(entry)
-            @playEntry(entry, @context)
+            @playEntry(entry, @)
             @crnt_ii++
         remaining = @disc.length - @crnt_ii
         if not remaining 

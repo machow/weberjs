@@ -115,10 +115,10 @@ class paperPlugin
 
         return p_obj
 
-    update: ({name, method, options, events, log, duration}, context) ->
+    update: ({name, method, options, events, log, duration}, thread) ->
         # look object up by name if necessary
         if not name
-            obj = context.target
+            obj = thread.context.target
         else if typeof name is 'string' then obj = @group.children[name]
         
         if not obj
@@ -166,8 +166,8 @@ class paperPlugin
                 if duration
                     setTimeout ( -> obj.off(key, handler)), duration
 
-    log: ({name, props}, context) ->
-        if not name then obj = context.target
+    log: ({name, props}, thread) ->
+        if not name then obj = thread.context.target
         else if typeof name is 'string' then obj = @group.children[name]
         else obj = name
         

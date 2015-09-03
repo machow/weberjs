@@ -315,11 +315,11 @@ describe('runner: Thread', function(){
         expect(result).toEqual([0, 100, 'done']);
     });
 
-    it('passes context argument to the run function', function(){
+    it('passes thread with context argument to the run function', function(){
         thread.context = 1;
         thread.disc = [{time: 1000, val: 1}];
-        thread.playEntry = function(entry, context) {
-            result.push(entry.val + context)
+        thread.playEntry = function(entry, thread) {
+            result.push(entry.val + thread.context)
         };
         thread.run(1000);
         expect(result).toEqual([2]);
