@@ -274,12 +274,13 @@ describe('stitch paperPlugin', function(){
     // Weber with TrialTimeline -----------------------------------------------
     //
     it('runs through simple set of chunks w/TrialTimeline', function(done){
-        entry1 = create_stream();
-        entry2 = create_stream();
-        entry2[0].options.name = 'rect2';
+        var thread1 = new web.Thread(create_stream());
+        var stream = create_stream();
+        stream[0].options.name = 'rect2';
+        var thread2 = new web.Thread(stream);
 
-        web.TR.add(0, entry1);
-        web.TR.add(1, entry2);
+        web.TR.add(0, thread1);
+        web.TR.add(1, thread2);
         web.run();
         short_pause(function(){
             expect(shapes['rect']).toBeDefined();

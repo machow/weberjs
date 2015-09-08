@@ -51,9 +51,10 @@ class Stitch
             throw "stitch has no method of type: #{entry.type}"
         else @method[entry.type](entry, thread, @)
 
-    addThread: (disc, opts = {}) ->
-        block = new @Thread(disc, opts)
-        @playing.push(block)
+    addThread: (thread, opts = {}) ->
+        if not (thread instanceof @Thread)
+            thread = new @Thread(thread, opts)
+        @playing.push(thread)
 
     clearThread: ({name}) ->
         # TODO this is inefficient lookup, should use hash table?
@@ -93,27 +94,28 @@ class Stitch
 
         stitch = @
         @TrialTimeline.prototype.run = (chunk) ->
-            done = => @.runNext()
-            if chunk instanceof stitch.TrialTimeline
-                console.log('running subtimeline')
-                chunk.runCrnt()
-            else if typeof chunk is "object"
-                stitch.addThread(chunk, callback: done)
-            else if typeof chunk is "function"
-                chunk(done, stitch)
-
-        @TrialTimeline.prototype.factory = @TrialTimeline
+            if typeof chunk is "function"
+                chunk(@, stitch)
+            else chunk.start(@, stitch)
 
         # attach Thread
         class @Thread extends runner.Thread
             playEntry: stitch.playEntry
-
-
+            start: (TR) ->
+                @callback = () -> TR.runNext()
+                stitch.addThread(@)
+        #
         # Trial Runner
         @TR = new @TrialTimeline()
         #for chunk, ii in chunks 
         #    @TR.add(ii, chunk)
 
+    _compileTimeline: (blocks) ->
+        for block in blocks
+            if Array.isArray(block) then Thread(block)
+            else if typeof block is "object" then @playBlock
+
+        
 
 
 
