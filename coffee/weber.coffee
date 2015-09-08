@@ -17,29 +17,10 @@ class Stitch
 
         @_attachRunners()
 
-    run: -> @TR.runCrnt()
-
-    #newTimeline: () ->
-    #    TR = new @TrialTimeline([])
-
-
-    #    TR.run = (chunk) =>
-    #        done = => TR.runNext()
-    #        if chunk instanceof @TrialTimeline
-    #            console.log('running subtimeline')
-    #            chunk.runCrnt()
-    #            
-    #        else if typeof chunk is "object"
-    #            @addThread(chunk, callback: done)
-    #        else if typeof chunk is "function"
-    #            chunk(done, @)
-
-    #    return TR
+    run: -> @TR.start()
 
     makeTrials: (template, args) ->
         timeline = runner.Templates.makeTrials(template, args, @newTimeline())
-
-
 
     playEntry: (entry, thread) =>
         # Consider switching to hash reference? I'm not sure how js compiles
@@ -114,34 +95,5 @@ class Stitch
         for block in blocks
             if Array.isArray(block) then Thread(block)
             else if typeof block is "object" then @playBlock
-
-        
-
-
-
-#    groupToData: (flatten) ->
-#        # TODO matchName is passed to match
-#        allData = (@pathToData(obj) for obj in @group.children)
-#
-#        if flatten then return [].concat.apply([], allData)[0]
-#
-#        allData
-#
-#    pathToData: (name, data) ->
-#        if typeof name is 'string' then path = @group.children[name] else path = name
-#
-#        data = if typeof data is 'string' then @data[data] = {x: [], y: []} 
-#        else data ?= x: [], y: []
-#        path = path.clone()
-#        path.remove()
-#        path.flatten(2)
-#        for seg in path._segments
-#            data.x.push(seg._point.x)
-#            data.y.push(seg._point.y)
-#
-#        data.name = path.name
-#        data.group = path.group
-#
-#        return data
 
 window.Stitch = Stitch
