@@ -1,16 +1,19 @@
 class Stitch
-    constructor: (@canvasId, pluginsToLoad = [window.paperPlugin]) ->
+    constructor: (@canvasId, blockPlugins  = [],
+                             threadPlugins = [window.paperPlugin]) ->
         @history = []
         @playing = []       # threads being played
         @plugin = {}
-        @method = {}
+        @threadMethod = {}
+        @blockMethod = {}
 
-        # add default methods
+        # add default thread methods
         defaultMethods = ['addThread', 'clearThread', 'runThreads', 'register']
         binder = (fn, me) -> () -> fn.apply(me, arguments)
-        for m in defaultMethods then @method[m] = @[m].bind(@)
+        for m in defaultMethods then @threadMethod[m] = @[m].bind(@)
 
-        @loadPlugin(plugin) for plugin in pluginsToLoad
+        @loadPlugin(plugin, @threadMethod) for plugin in threadPlugins
+        @loadPlugin(plugin, @blockMethod ) for plugin in blockPlugins
 
         # modules
         @logger = new Logger()
@@ -22,15 +25,18 @@ class Stitch
     makeTrials: (template, args) ->
         timeline = runner.Templates.makeTrials(template, args, @newTimeline())
 
+    createBlock: (block) ->
+        if not @blockMethod.hasOwnProperty(block.type)
+            throw "stitch has no blockMethod of type: #{entry.type}"
+        @blockMethod[block.type](block, stitch)
+        
     playEntry: (entry, thread) =>
         # Consider switching to hash reference? I'm not sure how js compiles
         # switch statements...
 
-        # TODO: modifying thread entries is BAD
-
-        if not @method.hasOwnProperty(entry.type)
+        if not @threadMethod.hasOwnProperty(entry.type)
             throw "stitch has no method of type: #{entry.type}"
-        else @method[entry.type](entry, thread, @)
+        else @threadMethod[entry.type](entry, thread, @)
 
     addThread: (thread, opts = {}) ->
         if not (thread instanceof @Thread)
@@ -62,12 +68,12 @@ class Stitch
         if typeof name == 'object' then @registered = name
         else @registered[name] = stream
 
-    loadPlugin: (plugin) ->
+    loadPlugin: (plugin, methods) ->
         switch (typeof plugin)
-            when 'function' then plugin(@)
+            when 'function' then plugin(@, methods)
             when 'object'
                 for own k, f of plugin
-                    @method[k] = f if not @method.hasOwnProperty(k)
+                    methods[k] = f if not methods.hasOwnProperty(k)
 
     _attachRunners: () ->
         # attach TrialTimeline
@@ -92,8 +98,14 @@ class Stitch
         #    @TR.add(ii, chunk)
 
     _compileTimeline: (blocks) ->
+        # todo block name
         for block in blocks
-            if Array.isArray(block) then Thread(block)
-            else if typeof block is "object" then @playBlock
+            if Array.isArray(block) then new Thread(block)
+            else if typeof block is "object" then @createBlock(block)
+            else block
+
+    _timelineFromObject: (obj) ->
+        timeline = []
+
 
 window.Stitch = Stitch

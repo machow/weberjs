@@ -75,7 +75,7 @@ window.events = paperEvents
 
 # requires logger.coffee, events
 class paperPlugin
-    constructor: (stitch) ->
+    constructor: (stitch, methods) ->
         # setup new paperscope and places two objects on stitch..
         #   paper: paperscope for project
         #   paperEvents: custom event handlers defined above
@@ -92,7 +92,7 @@ class paperPlugin
 
         @stitch = stitch
         for ii in ['add', 'update', 'updateOn', 'log', 'logMethod', 'removeAll']
-            stitch.method[ii] = @[ii].bind(@)
+            methods[ii] = @[ii].bind(@)
 
     add: ({item, options, events, log, duration}) ->
         if typeof item is not 'string'
@@ -190,7 +190,7 @@ class paperPlugin
 
         return obj
 
-paperPluginConstructor = (stitch) ->
-    stitch.plugin.paper = new paperPlugin(stitch)
+paperPluginConstructor = (stitch, methods) ->
+    stitch.plugin.paper = new paperPlugin(stitch, methods)
 
 window.paperPlugin = paperPluginConstructor
